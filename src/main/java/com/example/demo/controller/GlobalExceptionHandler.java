@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,6 +31,20 @@ public class GlobalExceptionHandler {
     public Map<String, String> handleIllegalArgumentException(IllegalArgumentException ex) {
         Map<String, String> error = new HashMap<>();
         error.put("error", ex.getMessage());
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public Map<String, String> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+        Map<String, String> error = new HashMap<>();
+        String message = ex.getMostSpecificCause().getMessage();
+        
+        if (message != null && message.contains("Duplicate entry")) {
+            error.put("error", "Ya existe un registro con ese valor único (ej. código SKU o nombre duplicado). Por favor, ingresa uno diferente.");
+        } else {
+            error.put("error", "Error de integridad en la base de datos: " + message);
+        }
         return error;
     }
 }
