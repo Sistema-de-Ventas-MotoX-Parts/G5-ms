@@ -12,45 +12,45 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
-import com.example.demo.model.Producto;
-import com.example.demo.service.ProductoService;
+import com.example.demo.model.Categoria;
+import com.example.demo.service.CategoriaService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/productos")
+@RequestMapping("api/categorias")
 @CrossOrigin(origins = "*")
-public class ProductoController {
-	
+public class CategoriaController {
+
 	@Autowired
-	private ProductoService productoService;
-	
+	private CategoriaService categoriaService;
+
 	//LISTAR
 	@GetMapping
-	public List<Producto> listar(){
-		return productoService.obtenerTodos();
+	public List<Categoria> listar(){
+		return categoriaService.obtenerTodos();
 	}
-	
-	// DAR DE ALTA
-	@PostMapping
-	public Producto crear(@Valid @RequestBody Producto producto) {
-		return productoService.guardarProducto(producto);
-	}
-	
+
 	//OBTENER POR ID
 	@GetMapping("/{id}")
-	public Producto obtenerPorId(@PathVariable Long id) {
-		return productoService.obtenerPorId(id);
+	public Categoria obtenerPorId(@PathVariable Long id) {
+		return categoriaService.obtenerPorId(id);
 	}
-	
+
+	//ALTA
+	@PostMapping
+	public Categoria crear( @RequestBody Categoria categoria) {
+		return categoriaService.guardarCategoria(categoria);
+	}
+
 	//EDITAR
 	@PutMapping("/{id}")
-	public Producto editar(@PathVariable Long id, @Valid @RequestBody Producto producto) {
-		return productoService.editarProducto(id, producto);
+	public Categoria editar(@PathVariable Long id, @Valid @RequestBody Categoria categoria) {
+		return categoriaService.editarCategoria(id, categoria);
 	}
-	
-	//DAR DE BAJA
-    @DeleteMapping("/{id}")
-    public void eliminar(@PathVariable Long id) {
-        productoService.eliminarProducto(id);
-    }
+
+	//BAJA
+	@DeleteMapping("/{id}")
+	public void eliminar(@PathVariable Long id) {
+		categoriaService.eliminarCategoria(id);
+	}
 }
