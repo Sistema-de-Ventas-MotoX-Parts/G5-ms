@@ -166,3 +166,57 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 *   **Body (form-data)**:
     *   **Key**: `file` (seleccionar tipo "File" en el desplegable de Postman).
     *   **Value**: *Selecciona una imagen local.*
+
+---
+
+### E. Gestión de Métodos de Pago
+
+#### 1. Crear un Método de Pago
+*   **Método**: `POST`
+*   **URL**: `http://localhost:8080/api/metodos-pago`
+*   **Headers**: `Content-Type: application/json`
+*   **Body (JSON)**:
+```json
+{
+  "nombre": "Tarjeta de Crédito"
+}
+```
+
+#### 2. Listar todos los Métodos de Pago
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/metodos-pago`
+
+#### 3. Obtener Método de Pago por ID
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/metodos-pago/1`
+
+---
+
+### F. Gestión de Facturación
+
+#### 1. Crear una Factura
+*   **Método**: `POST`
+*   **URL**: `http://localhost:8080/api/facturas`
+*   **Headers**: `Content-Type: application/json`
+*   **Body (JSON)**:
+```json
+{
+  "idUsuario": 1,
+  "idMetodoPago": 1,
+  "detalles": [
+    {
+      "idProducto": 1,
+      "cantidad": 2
+    }
+  ]
+}
+```
+*Nota: El sistema calculará automáticamente los precios, descontará el stock y generará la fecha y estado.*
+
+#### 2. Listar todas las Facturas
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/facturas`
+
+#### 3. Obtener Factura por ID (Incluyendo Detalles)
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/facturas/1`
