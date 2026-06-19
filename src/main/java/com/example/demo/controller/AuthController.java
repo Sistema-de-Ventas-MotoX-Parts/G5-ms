@@ -22,6 +22,9 @@ public class AuthController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private com.example.demo.security.JwtUtil jwtUtil;
+
     @PostMapping("/register")
     public ResponseEntity<?> registrar(@Valid @RequestBody Usuario usuario) {
         try {
@@ -40,10 +43,13 @@ public class AuthController {
         try {
             Usuario usuario = usuarioService.login(loginRequest.getEmail(), loginRequest.getContrasenia());
             
+            String token = jwtUtil.generateToken(usuario.getEmail());
+            
             Map<String, Object> response = new HashMap<>();
             response.put("id", usuario.getId());
             response.put("nombre", usuario.getNombre());
             response.put("email", usuario.getEmail());
+            response.put("token", token);
             response.put("mensaje", "Inicio de sesión exitoso");
             
             return ResponseEntity.ok(response);
