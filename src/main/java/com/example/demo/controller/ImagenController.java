@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.CloudinaryService;
+import com.example.demo.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +18,15 @@ public class ImagenController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Map<String, String>> uploadImage(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @RequestParam("file") MultipartFile file) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         try {
             String imageUrl = cloudinaryService.uploadImage(file);
             Map<String, String> response = new HashMap<>();
