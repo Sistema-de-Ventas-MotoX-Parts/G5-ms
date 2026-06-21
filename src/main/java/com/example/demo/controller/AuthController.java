@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.example.demo.model.Usuario;
 import com.example.demo.service.UsuarioService;
@@ -44,21 +46,32 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
             Usuario usuario = usuarioService.login(loginRequest.getEmail(), loginRequest.getContrasenia());
 
             String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getRol().getNombreRol().name());
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", usuario.getId());
-            response.put("nombre", usuario.getNombre());
-            response.put("email", usuario.getEmail());
-            response.put("rol", usuario.getRol().getNombreRol().name());
-            response.put("token", token);
-            response.put("mensaje", "Inicio de sesión exitoso");
+            // Crear la cookie HttpOnly
+            org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("token_jwt", token)
+                    .httpOnly(true)
+                    .secure(false) // cambiar a true en producción si usas HTTPS
+                    .path("/")
+                    .maxAge(86400) // 1 día de validez
+                    .sameSite("Lax")
+                    .build();
 
-            return ResponseEntity.ok(response);
+            response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
+
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("id", usuario.getId());
+            responseBody.put("nombre", usuario.getNombre());
+            responseBody.put("email", usuario.getEmail());
+            responseBody.put("rol", usuario.getRol().getNombreRol().name());
+            responseBody.put("token", token); // Se mantiene para compatibilidad con clientes que no usan cookies
+            responseBody.put("mensaje", "Inicio de sesión exitoso");
+
+            return ResponseEntity.ok(responseBody);
         } catch (IllegalArgumentException e) {
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
@@ -66,13 +79,32 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        // Eliminar la cookie seteando maxAge a 0
+        org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("token_jwt", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader(org.springframework.http.HttpHeaders.SET_COOKIE, cookie.toString());
+
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("mensaje", "Sesión cerrada exitosamente");
+        return ResponseEntity.ok(responseBody);
+    }
+
     // CRUD para Usuarios (Solo ADMIN)
 
     @PostMapping("/usuarios")
     public ResponseEntity<?> crearUsuario(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody Usuario usuario) {
-        jwtUtil.validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         Usuario nuevoUsuario = usuarioService.crearUsuario(usuario);
         nuevoUsuario.setContrasenia(null);
         return ResponseEntity.ok(nuevoUsuario);
@@ -81,9 +113,10 @@ public class AuthController {
     @PutMapping("/usuarios/{id}")
     public ResponseEntity<?> actualizarUsuario(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @RequestBody Usuario usuario) {
-        jwtUtil.validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         Usuario usuarioActualizado = usuarioService.actualizarUsuario(id, usuario);
         usuarioActualizado.setContrasenia(null);
         return ResponseEntity.ok(usuarioActualizado);
@@ -92,8 +125,9 @@ public class AuthController {
     @DeleteMapping("/usuarios/{id}")
     public ResponseEntity<?> eliminarUsuario(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         usuarioService.eliminarUsuario(id);
         Map<String, String> response = new HashMap<>();
         response.put("mensaje", "Usuario eliminado exitosamente");
@@ -102,8 +136,9 @@ public class AuthController {
 
     @GetMapping("/usuarios")
     public ResponseEntity<?> obtenerTodos(
-            @RequestHeader(value = "Authorization", required = false) String tokenHeader) {
-        jwtUtil.validarAdmin(tokenHeader);
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         java.util.List<Usuario> usuarios = usuarioService.obtenerTodos();
         usuarios.forEach(u -> u.setContrasenia(null));
         return ResponseEntity.ok(usuarios);
@@ -112,8 +147,9 @@ public class AuthController {
     @GetMapping("/usuarios/{id}")
     public ResponseEntity<?> obtenerPorId(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         Usuario usuario = usuarioService.obtenerPorId(id);
         usuario.setContrasenia(null);
         return ResponseEntity.ok(usuario);
@@ -139,5 +175,4 @@ public class AuthController {
             this.contrasenia = contrasenia;
         }
     }
-
 }

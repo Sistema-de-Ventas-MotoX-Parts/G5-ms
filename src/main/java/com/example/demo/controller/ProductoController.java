@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
@@ -31,8 +32,10 @@ public class ProductoController {
 	
 	//LISTAR
 	@GetMapping
-	public List<Producto> listar(@RequestHeader(value = "Authorization", required = false) String tokenHeader){
-		jwtUtil.validarAdmin(tokenHeader);
+	public List<Producto> listar(
+			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken) {
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return productoService.obtenerTodos();
 	}
 	
@@ -40,8 +43,9 @@ public class ProductoController {
 	@PostMapping
 	public Producto crear(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@Valid @RequestBody Producto producto) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return productoService.guardarProducto(producto);
 	}
 	
@@ -49,8 +53,9 @@ public class ProductoController {
 	@GetMapping("/{id}")
 	public Producto obtenerPorId(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return productoService.obtenerPorId(id);
 	}
 	
@@ -58,9 +63,10 @@ public class ProductoController {
 	@PutMapping("/{id}")
 	public Producto editar(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id,
 			@Valid @RequestBody Producto producto) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return productoService.editarProducto(id, producto);
 	}
 	
@@ -68,8 +74,9 @@ public class ProductoController {
     @DeleteMapping("/{id}")
     public void eliminar(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
         productoService.eliminarProducto(id);
     }
 }

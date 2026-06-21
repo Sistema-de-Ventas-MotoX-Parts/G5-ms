@@ -77,10 +77,20 @@ public class JwtUtil {
     }
 
     public void validarAdmin(String tokenHeader) {
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+        validarAdmin(tokenHeader, null);
+    }
+
+    public void validarAdmin(String tokenHeader, String cookieToken) {
+        String token = null;
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            token = tokenHeader.substring(7);
+        } else if (cookieToken != null && !cookieToken.isEmpty()) {
+            token = cookieToken;
+        }
+
+        if (token == null) {
             throw new SecurityException("Acceso denegado. Token de autorización no proporcionado o inválido.");
         }
-        String token = tokenHeader.substring(7);
         String email = getEmailFromToken(token);
         if (!validateToken(token, email)) {
             throw new SecurityException("Acceso denegado. Token inválido o expirado.");

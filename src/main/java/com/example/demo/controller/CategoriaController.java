@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
@@ -31,8 +32,10 @@ public class CategoriaController {
 
 	//LISTAR
 	@GetMapping
-	public List<Categoria> listar(@RequestHeader(value = "Authorization", required = false) String tokenHeader){
-		jwtUtil.validarAdmin(tokenHeader);
+	public List<Categoria> listar(
+			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken) {
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return categoriaService.obtenerTodos();
 	}
 
@@ -40,8 +43,9 @@ public class CategoriaController {
 	@GetMapping("/{id}")
 	public Categoria obtenerPorId(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return categoriaService.obtenerPorId(id);
 	}
 
@@ -49,8 +53,9 @@ public class CategoriaController {
 	@PostMapping
 	public Categoria crear(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@RequestBody Categoria categoria) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return categoriaService.guardarCategoria(categoria);
 	}
 
@@ -58,9 +63,10 @@ public class CategoriaController {
 	@PutMapping("/{id}")
 	public Categoria editar(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id,
 			@Valid @RequestBody Categoria categoria) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return categoriaService.editarCategoria(id, categoria);
 	}
 
@@ -68,8 +74,9 @@ public class CategoriaController {
 	@DeleteMapping("/{id}")
 	public void eliminar(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader);
+		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		categoriaService.eliminarCategoria(id);
 	}
 }

@@ -24,8 +24,9 @@ public class ImagenController {
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadImage(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @RequestParam("file") MultipartFile file) {
-        jwtUtil.validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         try {
             String imageUrl = cloudinaryService.uploadImage(file);
             Map<String, String> response = new HashMap<>();
