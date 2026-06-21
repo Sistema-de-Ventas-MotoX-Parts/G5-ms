@@ -220,3 +220,90 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 #### 3. Obtener Factura por ID (Incluyendo Detalles)
 *   **Método**: `GET`
 *   **URL**: `http://localhost:8080/api/facturas/1`
+
+---
+
+### G. Gestión de Servicios
+
+#### 1. Crear un Servicio
+*   **Método**: `POST`
+*   **URL**: `http://localhost:8080/api/servicios`
+*   **Headers**: `Content-Type: application/json`
+*   **Body (JSON)**:
+```json
+{
+  "nombre": "Cambio de Aceite",
+  "descripcion": "Cambio de aceite sintético y filtro.",
+  "precioBase": 15000.0
+}
+```
+
+#### 2. Listar todos los Servicios
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/servicios`
+
+#### 3. Obtener Servicio por ID
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/servicios/1`
+
+#### 4. Editar Servicio
+*   **Método**: `PUT`
+*   **URL**: `http://localhost:8080/api/servicios/1`
+*   **Headers**: `Content-Type: application/json`
+*   **Body (JSON)**:
+```json
+{
+  "nombre": "Cambio de Aceite Premium",
+  "descripcion": "Aceite importado alta duración.",
+  "precioBase": 18000.0
+}
+```
+
+#### 5. Eliminar Servicio
+*   **Método**: `DELETE`
+*   **URL**: `http://localhost:8080/api/servicios/1`
+
+---
+
+### H. Gestión de Motocicletas
+
+#### 1. Crear una Motocicleta
+*   **Método**: `POST`
+*   **URL**: `http://localhost:8080/api/motocicletas`
+*   **Headers**: `Content-Type: application/json`
+*   **Body (JSON)**:
+```json
+{
+  "marca": "Honda",
+  "modelo": "Titan 150",
+  "patente": "AB123CD",
+  "idUsuario": 1
+}
+```
+*Nota: El campo `idUsuario` es opcional para poder registrar motos de clientes no fidelizados.*
+
+#### 2. Listar todas las Motocicletas
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/motocicletas`
+
+#### 3. Obtener Motocicleta por ID
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/motocicletas/1`
+
+#### 4. Editar Motocicleta
+*   **Método**: `PUT`
+*   **URL**: `http://localhost:8080/api/motocicletas/1`
+*   **Headers**: `Content-Type: application/json`
+*   **Body (JSON)**:
+```json
+{
+  "marca": "Honda",
+  "modelo": "Titan 150 (Modificado)",
+  "patente": "AB123CD",
+  "idUsuario": null
+}
+```
+
+#### 5. Eliminar Motocicleta
+*   **Método**: `DELETE`
+*   **URL**: `http://localhost:8080/api/motocicletas/1`
