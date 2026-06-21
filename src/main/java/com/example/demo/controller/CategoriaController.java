@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
 import com.example.demo.model.Categoria;
 import com.example.demo.service.CategoriaService;
+import com.example.demo.security.JwtUtil;
 import java.util.List;
 
 @RestController
@@ -24,33 +26,50 @@ public class CategoriaController {
 	@Autowired
 	private CategoriaService categoriaService;
 
+	@Autowired
+	private JwtUtil jwtUtil;
+
 	//LISTAR
 	@GetMapping
-	public List<Categoria> listar(){
+	public List<Categoria> listar(@RequestHeader(value = "Authorization", required = false) String tokenHeader){
+		jwtUtil.validarAdmin(tokenHeader);
 		return categoriaService.obtenerTodos();
 	}
 
 	//OBTENER POR ID
 	@GetMapping("/{id}")
-	public Categoria obtenerPorId(@PathVariable Long id) {
+	public Categoria obtenerPorId(
+			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@PathVariable Long id) {
+		jwtUtil.validarAdmin(tokenHeader);
 		return categoriaService.obtenerPorId(id);
 	}
 
 	//ALTA
 	@PostMapping
-	public Categoria crear( @RequestBody Categoria categoria) {
+	public Categoria crear(
+			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@RequestBody Categoria categoria) {
+		jwtUtil.validarAdmin(tokenHeader);
 		return categoriaService.guardarCategoria(categoria);
 	}
 
 	//EDITAR
 	@PutMapping("/{id}")
-	public Categoria editar(@PathVariable Long id, @Valid @RequestBody Categoria categoria) {
+	public Categoria editar(
+			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@PathVariable Long id,
+			@Valid @RequestBody Categoria categoria) {
+		jwtUtil.validarAdmin(tokenHeader);
 		return categoriaService.editarCategoria(id, categoria);
 	}
 
 	//BAJA
 	@DeleteMapping("/{id}")
-	public void eliminar(@PathVariable Long id) {
+	public void eliminar(
+			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
+			@PathVariable Long id) {
+		jwtUtil.validarAdmin(tokenHeader);
 		categoriaService.eliminarCategoria(id);
 	}
 }

@@ -30,21 +30,6 @@ public class AuthController {
     @Autowired
     private com.example.demo.security.JwtUtil jwtUtil;
 
-    private void validarAdmin(String tokenHeader) {
-        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
-            throw new SecurityException("Acceso denegado. Token de autorización no proporcionado o inválido.");
-        }
-        String token = tokenHeader.substring(7);
-        String email = jwtUtil.getEmailFromToken(token);
-        if (!jwtUtil.validateToken(token, email)) {
-            throw new SecurityException("Acceso denegado. Token inválido o expirado.");
-        }
-        String rol = jwtUtil.getRolFromToken(token);
-        if (!"ADMIN".equals(rol)) {
-            throw new SecurityException("Acceso denegado. Se requiere rol de administrador.");
-        }
-    }
-
     @PostMapping("/register")
     public ResponseEntity<?> registrar(@Valid @RequestBody Usuario usuario) {
         try {
@@ -87,7 +72,7 @@ public class AuthController {
     public ResponseEntity<?> crearUsuario(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @Valid @RequestBody Usuario usuario) {
-        validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader);
         Usuario nuevoUsuario = usuarioService.crearUsuario(usuario);
         nuevoUsuario.setContrasenia(null);
         return ResponseEntity.ok(nuevoUsuario);
@@ -98,7 +83,7 @@ public class AuthController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @PathVariable Long id,
             @RequestBody Usuario usuario) {
-        validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader);
         Usuario usuarioActualizado = usuarioService.actualizarUsuario(id, usuario);
         usuarioActualizado.setContrasenia(null);
         return ResponseEntity.ok(usuarioActualizado);
@@ -108,7 +93,7 @@ public class AuthController {
     public ResponseEntity<?> eliminarUsuario(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @PathVariable Long id) {
-        validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader);
         usuarioService.eliminarUsuario(id);
         Map<String, String> response = new HashMap<>();
         response.put("mensaje", "Usuario eliminado exitosamente");
@@ -118,7 +103,7 @@ public class AuthController {
     @GetMapping("/usuarios")
     public ResponseEntity<?> obtenerTodos(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader) {
-        validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader);
         java.util.List<Usuario> usuarios = usuarioService.obtenerTodos();
         usuarios.forEach(u -> u.setContrasenia(null));
         return ResponseEntity.ok(usuarios);
@@ -128,7 +113,7 @@ public class AuthController {
     public ResponseEntity<?> obtenerPorId(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @PathVariable Long id) {
-        validarAdmin(tokenHeader);
+        jwtUtil.validarAdmin(tokenHeader);
         Usuario usuario = usuarioService.obtenerPorId(id);
         usuario.setContrasenia(null);
         return ResponseEntity.ok(usuario);

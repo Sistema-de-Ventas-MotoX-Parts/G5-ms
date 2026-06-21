@@ -75,4 +75,19 @@ public class JwtUtil {
         final String tokenEmail = getEmailFromToken(token);
         return (tokenEmail.equals(email) && !isTokenExpired(token));
     }
+
+    public void validarAdmin(String tokenHeader) {
+        if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
+            throw new SecurityException("Acceso denegado. Token de autorización no proporcionado o inválido.");
+        }
+        String token = tokenHeader.substring(7);
+        String email = getEmailFromToken(token);
+        if (!validateToken(token, email)) {
+            throw new SecurityException("Acceso denegado. Token inválido o expirado.");
+        }
+        String rol = getRolFromToken(token);
+        if (!"ADMIN".equals(rol)) {
+            throw new SecurityException("Acceso denegado. Se requiere rol de administrador.");
+        }
+    }
 }
