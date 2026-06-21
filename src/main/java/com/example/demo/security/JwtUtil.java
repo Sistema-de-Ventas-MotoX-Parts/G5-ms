@@ -31,13 +31,18 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String email, String rol) {
         return Jwts.builder()
                 .subject(email)
+                .claim("rol", rol)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
                 .compact();
+    }
+
+    public String getRolFromToken(String token) {
+        return extractClaim(token, claims -> claims.get("rol", String.class));
     }
 
     public String getEmailFromToken(String token) {

@@ -47,4 +47,12 @@ public class GlobalExceptionHandler {
         }
         return error;
     }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(SecurityException.class)
+    public Map<String, String> handleSecurityException(SecurityException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return error;
+    }
 }
