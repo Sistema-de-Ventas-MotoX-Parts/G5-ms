@@ -41,10 +41,27 @@ public class GlobalExceptionHandler {
         String message = ex.getMostSpecificCause().getMessage();
         
         if (message != null && message.contains("Duplicate entry")) {
-            error.put("error", "Ya existe un registro con ese valor único (ej. código SKU o nombre duplicado). Por favor, ingresa uno diferente.");
+            error.put("error", "Ya existe un registro con ese valor único. Por favor, ingresa uno diferente.");
         } else {
             error.put("error", "Error de integridad en la base de datos: " + message);
         }
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public Map<String, String> handleTypeMismatchExceptions(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "Formato de datos incorrecto");
+        error.put("detalle", "Verifica que los números no contengan letras y que la estructura sea correcta.");
+        return error;
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(RuntimeException.class)
+    public Map<String, String> handleRuntimeExceptions(RuntimeException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
         return error;
     }
 }
