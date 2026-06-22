@@ -203,10 +203,16 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 {
   "idUsuario": 1,
   "idMetodoPago": 1,
+  "idOrden": null,
   "detalles": [
     {
       "idProducto": 1,
       "cantidad": 2
+    }
+  ],
+  "detallesServicios": [
+    {
+      "idServicio": 1
     }
   ]
 }
@@ -307,3 +313,11 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 #### 5. Eliminar Motocicleta
 *   **Método**: `DELETE`
 *   **URL**: `http://localhost:8080/api/motocicletas/1`
+
+#### 6. Obtener Motocicletas por Usuario
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/motocicletas/usuario/1`
+
+#### 7. Obtener Motocicleta por Patente
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/motocicletas/patente/AB123CD`
