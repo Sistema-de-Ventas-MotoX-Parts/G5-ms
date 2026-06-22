@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/imagenes")
 public class ImagenController {
 

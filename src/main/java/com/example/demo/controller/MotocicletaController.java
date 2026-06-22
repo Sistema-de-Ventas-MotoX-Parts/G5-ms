@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/motocicletas")
 public class MotocicletaController {
 
@@ -21,7 +22,8 @@ public class MotocicletaController {
     }
 
     @PostMapping
-    public ResponseEntity<MotocicletaResponseDTO> crearMotocicleta(@Valid @RequestBody MotocicletaRequestDTO requestDTO) {
+    public ResponseEntity<MotocicletaResponseDTO> crearMotocicleta(
+            @Valid @RequestBody MotocicletaRequestDTO requestDTO) {
         MotocicletaResponseDTO response = motocicletaService.crearMotocicleta(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -38,7 +40,7 @@ public class MotocicletaController {
 
     @PutMapping("/{id}")
     public ResponseEntity<MotocicletaResponseDTO> actualizarMotocicleta(
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @Valid @RequestBody MotocicletaRequestDTO requestDTO) {
         return ResponseEntity.ok(motocicletaService.actualizarMotocicleta(id, requestDTO));
     }
