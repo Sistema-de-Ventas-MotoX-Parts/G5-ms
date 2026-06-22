@@ -31,7 +31,7 @@ public class MotocicletaService {
 
         if (requestDTO.getIdUsuario() != null) {
             Usuario usuario = usuarioRepository.findById(requestDTO.getIdUsuario())
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + requestDTO.getIdUsuario()));
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
             motocicleta.setUsuario(usuario);
         } else {
             Usuario consumidor = usuarioRepository.findByEmail("consumidor@final")
@@ -63,7 +63,7 @@ public class MotocicletaService {
     //OBTENER
     public MotocicletaResponseDTO obtenerPorId(Long id) {
         Motocicleta motocicleta = motocicletaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada"));
         return mapToResponseDTO(motocicleta);
     }
 
@@ -77,7 +77,7 @@ public class MotocicletaService {
     // EDITAR
     public MotocicletaResponseDTO actualizarMotocicleta(Long id, MotocicletaRequestDTO requestDTO) {
         Motocicleta motocicleta = motocicletaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada"));
 
         motocicleta.setMarca(requestDTO.getMarca());
         motocicleta.setModelo(requestDTO.getModelo());
@@ -85,7 +85,7 @@ public class MotocicletaService {
 
         if (requestDTO.getIdUsuario() != null) {
             Usuario usuario = usuarioRepository.findById(requestDTO.getIdUsuario())
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + requestDTO.getIdUsuario()));
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
             motocicleta.setUsuario(usuario);
         } else {
             Usuario consumidor = usuarioRepository.findByEmail("consumidor@final")
@@ -100,7 +100,7 @@ public class MotocicletaService {
     //BAJA
     public void eliminarMotocicleta(Long id) {
         Motocicleta motocicleta = motocicletaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada"));
         motocicletaRepository.delete(motocicleta);
     }
 
