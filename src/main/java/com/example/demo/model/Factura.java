@@ -52,6 +52,13 @@ public class Factura {
     @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleFactura> detalles = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "id_orden", nullable = true)
+    private Orden orden;
+
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleFacturaServicio> detallesServicios = new ArrayList<>();
+
     //Getter y Setter
     public Long getId() {
         return id;
@@ -107,5 +114,21 @@ public class Factura {
 
     public void setDetalles(List<DetalleFactura> detalles) {
         this.detalles = detalles;
+    }
+
+    public Orden getOrden() {
+        return orden;
+    }
+
+    public void setOrden(Orden orden) {
+        this.orden = orden;
+    }
+
+    public List<DetalleFacturaServicio> getDetallesServicios() {
+        return detallesServicios;
+    }
+
+    public void setDetallesServicios(List<DetalleFacturaServicio> detallesServicios) {
+        this.detallesServicios = detallesServicios;
     }
 }
