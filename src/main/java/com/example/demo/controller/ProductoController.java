@@ -23,22 +23,19 @@ import java.util.List;
 @RequestMapping("api/productos")
 @CrossOrigin(origins = "*")
 public class ProductoController {
-	
+
 	@Autowired
 	private ProductoService productoService;
 
 	@Autowired
 	private JwtUtil jwtUtil;
-	
-	//LISTAR
+
+	// LISTAR
 	@GetMapping
-	public List<Producto> listar(
-			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
-			@CookieValue(value = "token_jwt", required = false) String cookieToken) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+	public List<Producto> listar() {
 		return productoService.obtenerTodos();
 	}
-	
+
 	// DAR DE ALTA
 	@PostMapping
 	public Producto crear(
@@ -48,18 +45,14 @@ public class ProductoController {
 		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return productoService.guardarProducto(producto);
 	}
-	
-	//OBTENER POR ID
+
+	// OBTENER POR ID
 	@GetMapping("/{id}")
-	public Producto obtenerPorId(
-			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
-			@CookieValue(value = "token_jwt", required = false) String cookieToken,
-			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+	public Producto obtenerPorId(@PathVariable Long id) {
 		return productoService.obtenerPorId(id);
 	}
-	
-	//EDITAR
+
+	// EDITAR
 	@PutMapping("/{id}")
 	public Producto editar(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
@@ -69,14 +62,14 @@ public class ProductoController {
 		jwtUtil.validarAdmin(tokenHeader, cookieToken);
 		return productoService.editarProducto(id, producto);
 	}
-	
-	//DAR DE BAJA
-    @DeleteMapping("/{id}")
-    public void eliminar(
+
+	// DAR DE BAJA
+	@DeleteMapping("/{id}")
+	public void eliminar(
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
 			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id) {
 		jwtUtil.validarAdmin(tokenHeader, cookieToken);
-        productoService.eliminarProducto(id);
-    }
+		productoService.eliminarProducto(id);
+	}
 }
