@@ -33,6 +33,10 @@ public class MotocicletaService {
             Usuario usuario = usuarioRepository.findById(requestDTO.getIdUsuario())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + requestDTO.getIdUsuario()));
             motocicleta.setUsuario(usuario);
+        } else {
+            Usuario consumidor = usuarioRepository.findByEmail("consumidor@final")
+                    .orElseThrow(() -> new RuntimeException("Usuario Consumidor Final no configurado"));
+            motocicleta.setUsuario(consumidor);
         }
 
         Motocicleta guardada = motocicletaRepository.save(motocicleta);
@@ -84,7 +88,9 @@ public class MotocicletaService {
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + requestDTO.getIdUsuario()));
             motocicleta.setUsuario(usuario);
         } else {
-            motocicleta.setUsuario(null);
+            Usuario consumidor = usuarioRepository.findByEmail("consumidor@final")
+                    .orElseThrow(() -> new RuntimeException("Usuario Consumidor Final no configurado"));
+            motocicleta.setUsuario(consumidor);
         }
 
         Motocicleta actualizada = motocicletaRepository.save(motocicleta);

@@ -54,8 +54,14 @@ public class FacturaService {
     public FacturaDTO crearFactura(FacturaDTO facturaDTO) {
         Factura factura = new Factura();
         
-        Usuario usuario = usuarioRepository.findById(facturaDTO.getIdUsuario())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + facturaDTO.getIdUsuario()));
+        Usuario usuario;
+        if (facturaDTO.getIdUsuario() != null) {
+            usuario = usuarioRepository.findById(facturaDTO.getIdUsuario())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + facturaDTO.getIdUsuario()));
+        } else {
+            usuario = usuarioRepository.findByEmail("consumidor@final")
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Usuario Consumidor Final no configurado"));
+        }
         factura.setUsuario(usuario);
         
         MetodoPago metodoPago = metodoPagoRepository.findById(facturaDTO.getIdMetodoPago())
@@ -141,6 +147,12 @@ public class FacturaService {
         Factura factura = facturaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Factura no encontrada"));
         return convertToDTO(factura);
+    }
+
+    public List<FacturaDTO> findByUsuarioId(Long usuarioId) {
+        return facturaRepository.findByUsuarioId(usuarioId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private FacturaDTO convertToDTO(Factura factura) {

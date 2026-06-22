@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import com.example.demo.security.JwtUtil;
+import com.example.demo.repository.UsuarioRepository;
+import com.example.demo.model.Usuario;
 
 import java.util.List;
 
@@ -17,6 +21,12 @@ public class FacturaController {
 
     @Autowired
     private FacturaService facturaService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping
     public ResponseEntity<List<FacturaDTO>> getAll() {
@@ -29,8 +39,52 @@ public class FacturaController {
     }
 
     @PostMapping
-    public ResponseEntity<FacturaDTO> create(@Valid @RequestBody FacturaDTO facturaDTO) {
+    public ResponseEntity<FacturaDTO> create(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @Valid @RequestBody FacturaDTO facturaDTO) {
+        
+        String token = null;
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            token = tokenHeader.substring(7);
+        } else if (cookieToken != null && !cookieToken.isEmpty()) {
+            token = cookieToken;
+        }
+
+        if (token != null) {
+            String email = jwtUtil.getEmailFromToken(token);
+            Usuario usuario = usuarioRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+            
+            if (!"ADMIN".equals(usuario.getRol().getNombreRol().name())) {
+                facturaDTO.setIdUsuario(usuario.getId());
+            }
+        }
+        
         FacturaDTO created = facturaService.crearFactura(facturaDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/mis-facturas")
+    public ResponseEntity<List<FacturaDTO>> getMisFacturas(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken) {
+        
+        String token = null;
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            token = tokenHeader.substring(7);
+        } else if (cookieToken != null && !cookieToken.isEmpty()) {
+            token = cookieToken;
+        }
+
+        if (token == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String email = jwtUtil.getEmailFromToken(token);
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        return ResponseEntity.ok(facturaService.findByUsuarioId(usuario.getId()));
     }
 }
