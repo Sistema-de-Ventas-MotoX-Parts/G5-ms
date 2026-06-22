@@ -87,4 +87,15 @@ public class FacturaController {
 
         return ResponseEntity.ok(facturaService.findByUsuarioId(usuario.getId()));
     }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<FacturaDTO> actualizarEstado(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id,
+            @RequestParam String estado) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        FacturaDTO updated = facturaService.actualizarEstado(id, estado);
+        return ResponseEntity.ok(updated);
+    }
 }
