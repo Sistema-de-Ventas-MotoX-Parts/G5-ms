@@ -27,6 +27,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         Rol adminRol = seedRol(NombreRol.ADMIN);
         Rol userRol = seedRol(NombreRol.USER);
 
+        // Fix existing users that have no role or id_rol = 0
+        usuarioRepository.fixUsuariosSinRol(userRol.getIdRol());
+
         // Seed Admin User
         String adminEmail = "admin@admin";
         Optional<Usuario> adminExistente = usuarioRepository.findByEmail(adminEmail);
@@ -42,6 +45,20 @@ public class DatabaseSeeder implements CommandLineRunner {
             System.out.println("Usuario ADMIN creado exitosamente (admin@admin / Admin123).");
         } else {
             System.out.println("Usuario ADMIN ya existe.");
+        }
+
+        // Seed Consumidor Final User
+        String consumidorEmail = "consumidor@final";
+        Optional<Usuario> consumidorExistente = usuarioRepository.findByEmail(consumidorEmail);
+        if (consumidorExistente.isEmpty()) {
+            Usuario consumidor = new Usuario();
+            consumidor.setNombre("Consumidor Final");
+            consumidor.setEmail(consumidorEmail);
+            String passwordEncriptado = BCrypt.hashpw("Consumidor123", BCrypt.gensalt());
+            consumidor.setContrasenia(passwordEncriptado);
+            consumidor.setRol(userRol);
+            usuarioRepository.save(consumidor);
+            System.out.println("Usuario Consumidor Final creado exitosamente.");
         }
     }
 

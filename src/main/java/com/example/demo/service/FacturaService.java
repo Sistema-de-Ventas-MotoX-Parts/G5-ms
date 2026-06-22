@@ -54,17 +54,23 @@ public class FacturaService {
     public FacturaDTO crearFactura(FacturaDTO facturaDTO) {
         Factura factura = new Factura();
         
-        Usuario usuario = usuarioRepository.findById(facturaDTO.getIdUsuario())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + facturaDTO.getIdUsuario()));
+        Usuario usuario;
+        if (facturaDTO.getIdUsuario() != null) {
+            usuario = usuarioRepository.findById(facturaDTO.getIdUsuario())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        } else {
+            usuario = usuarioRepository.findByEmail("consumidor@final")
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Usuario Consumidor Final no configurado"));
+        }
         factura.setUsuario(usuario);
         
         MetodoPago metodoPago = metodoPagoRepository.findById(facturaDTO.getIdMetodoPago())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado con id: " + facturaDTO.getIdMetodoPago()));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
         factura.setMetodoPago(metodoPago);
 
         if (facturaDTO.getIdOrden() != null) {
             Orden orden = ordenRepository.findById(facturaDTO.getIdOrden())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada con id: " + facturaDTO.getIdOrden()));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
             factura.setOrden(orden);
         }
         
@@ -77,7 +83,7 @@ public class FacturaService {
         if (facturaDTO.getDetalles() != null && !facturaDTO.getDetalles().isEmpty()) {
             for (DetalleFacturaDTO detDTO : facturaDTO.getDetalles()) {
                 Producto producto = productoRepository.findById(detDTO.getIdProducto())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado con id: " + detDTO.getIdProducto()));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
                 
                 if (producto.getStock() < detDTO.getCantidad()) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock insuficiente para el producto: " + producto.getNombre());
@@ -105,7 +111,7 @@ public class FacturaService {
         if (facturaDTO.getDetallesServicios() != null && !facturaDTO.getDetallesServicios().isEmpty()) {
             for (DetalleFacturaServicioDTO detServDTO : facturaDTO.getDetallesServicios()) {
                 Servicio servicio = servicioRepository.findById(detServDTO.getIdServicio())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Servicio no encontrado con id: " + detServDTO.getIdServicio()));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Servicio no encontrado"));
                 
                 DetalleFacturaServicio detalle = new DetalleFacturaServicio();
                 detalle.setFactura(factura);
@@ -141,6 +147,12 @@ public class FacturaService {
         Factura factura = facturaRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Factura no encontrada"));
         return convertToDTO(factura);
+    }
+
+    public List<FacturaDTO> findByUsuarioId(Long usuarioId) {
+        return facturaRepository.findByUsuarioId(usuarioId).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private FacturaDTO convertToDTO(Factura factura) {

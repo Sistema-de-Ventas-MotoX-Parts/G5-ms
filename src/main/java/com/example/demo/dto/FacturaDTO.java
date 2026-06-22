@@ -10,7 +10,6 @@ public class FacturaDTO {
 
     private Long id;
 
-    @NotNull(message = "El ID del usuario es obligatorio")
     private Long idUsuario;
     
     private String nombreUsuario;
