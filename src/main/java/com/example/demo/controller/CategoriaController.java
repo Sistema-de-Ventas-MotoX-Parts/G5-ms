@@ -32,20 +32,13 @@ public class CategoriaController {
 
 	//LISTAR
 	@GetMapping
-	public List<Categoria> listar(
-			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
-			@CookieValue(value = "token_jwt", required = false) String cookieToken) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+	public List<Categoria> listar() {
 		return categoriaService.obtenerTodos();
 	}
 
 	//OBTENER POR ID
 	@GetMapping("/{id}")
-	public Categoria obtenerPorId(
-			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
-			@CookieValue(value = "token_jwt", required = false) String cookieToken,
-			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+	public Categoria obtenerPorId(@PathVariable Long id) {
 		return categoriaService.obtenerPorId(id);
 	}
 
