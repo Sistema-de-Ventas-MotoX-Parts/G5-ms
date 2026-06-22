@@ -26,9 +26,13 @@ public class FacturaDTO {
     
     private String nombreMetodoPago;
 
-    @NotEmpty(message = "La factura debe tener al menos un detalle")
+    private Long idOrden;
+
     @Valid
     private List<DetalleFacturaDTO> detalles;
+
+    @Valid
+    private List<DetalleFacturaServicioDTO> detallesServicios;
 
     public Long getId() {
         return id;
@@ -100,5 +104,21 @@ public class FacturaDTO {
 
     public void setDetalles(List<DetalleFacturaDTO> detalles) {
         this.detalles = detalles;
+    }
+
+    public Long getIdOrden() {
+        return idOrden;
+    }
+
+    public void setIdOrden(Long idOrden) {
+        this.idOrden = idOrden;
+    }
+
+    public List<DetalleFacturaServicioDTO> getDetallesServicios() {
+        return detallesServicios;
+    }
+
+    public void setDetallesServicios(List<DetalleFacturaServicioDTO> detallesServicios) {
+        this.detallesServicios = detallesServicios;
     }
 }
