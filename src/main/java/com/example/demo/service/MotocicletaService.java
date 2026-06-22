@@ -22,6 +22,7 @@ public class MotocicletaService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    //ALTA
     public MotocicletaResponseDTO crearMotocicleta(MotocicletaRequestDTO requestDTO) {
         Motocicleta motocicleta = new Motocicleta();
         motocicleta.setMarca(requestDTO.getMarca());
@@ -38,18 +39,38 @@ public class MotocicletaService {
         return mapToResponseDTO(guardada);
     }
 
+    //LISTAR
     public List<MotocicletaResponseDTO> obtenerTodas() {
         return motocicletaRepository.findAll().stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    // OBTENER POR ID USUARIO
+    public List<MotocicletaResponseDTO> obtenerPorUsuario(Long idUsuario) {
+        if (!usuarioRepository.existsById(idUsuario)) {
+            throw new RuntimeException("Usuario no encontrado");
+        }
+        return motocicletaRepository.findByUsuarioId(idUsuario).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    //OBTENER
     public MotocicletaResponseDTO obtenerPorId(Long id) {
         Motocicleta motocicleta = motocicletaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada con id: " + id));
         return mapToResponseDTO(motocicleta);
     }
 
+    // OBTENER POR PATENTE
+    public MotocicletaResponseDTO obtenerPorPatente(String patente) {
+        Motocicleta motocicleta = motocicletaRepository.findByPatente(patente)
+                .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada"));
+        return mapToResponseDTO(motocicleta);
+    }
+
+    // EDITAR
     public MotocicletaResponseDTO actualizarMotocicleta(Long id, MotocicletaRequestDTO requestDTO) {
         Motocicleta motocicleta = motocicletaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada con id: " + id));
@@ -70,12 +91,14 @@ public class MotocicletaService {
         return mapToResponseDTO(actualizada);
     }
 
+    //BAJA
     public void eliminarMotocicleta(Long id) {
         Motocicleta motocicleta = motocicletaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada con id: " + id));
         motocicletaRepository.delete(motocicleta);
     }
 
+    // DTO DE RESPUESTA
     private MotocicletaResponseDTO mapToResponseDTO(Motocicleta motocicleta) {
         MotocicletaResponseDTO dto = new MotocicletaResponseDTO();
         dto.setId(motocicleta.getId());
