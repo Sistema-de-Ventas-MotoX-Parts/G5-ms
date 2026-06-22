@@ -61,6 +61,30 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 }
 ```
 
+#### 3. Obtener Mi Perfil (Autenticado)
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/usuarios/perfil`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
+
+#### 4. Editar Mi Perfil (Autenticado)
+*   **Método**: `PUT`
+*   **URL**: `http://localhost:8080/api/usuarios/perfil`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
+*   **Body (JSON)**:
+```json
+{
+  "nombre": "Juan Pérez Editado",
+  "contraseniaActual": "claveSegura123",
+  "nuevaContrasenia": "nuevaClave456"
+}
+```
+*Nota: Solo el nombre es modificable sin requerir contraseñas. Si se envía `nuevaContrasenia`, `contraseniaActual` es obligatoria para validar el cambio.*
+
+#### 5. Eliminar Mi Perfil (Autenticado)
+*   **Método**: `DELETE`
+*   **URL**: `http://localhost:8080/api/usuarios/perfil`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
+
 ---
 
 ### B. Gestión de Categorías
