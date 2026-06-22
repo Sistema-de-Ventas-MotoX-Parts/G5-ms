@@ -36,13 +36,13 @@ public class ServicioService {
 
     public ServicioResponseDTO obtenerPorId(Long id) {
         Servicio servicio = servicioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
         return mapToResponseDTO(servicio);
     }
 
     public ServicioResponseDTO actualizarServicio(Long id, ServicioRequestDTO requestDTO) {
         Servicio servicio = servicioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
         
         servicio.setNombre(requestDTO.getNombre());
         servicio.setDescripcion(requestDTO.getDescripcion());
@@ -54,7 +54,7 @@ public class ServicioService {
 
     public void eliminarServicio(Long id) {
         Servicio servicio = servicioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Servicio no encontrado con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
         servicioRepository.delete(servicio);
     }
 

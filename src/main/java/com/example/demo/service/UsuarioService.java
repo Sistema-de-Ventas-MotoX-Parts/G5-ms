@@ -110,6 +110,31 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    public Usuario actualizarMiPerfil(Long id, com.example.demo.dto.PerfilActualizarDTO dto) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+
+        if (dto.getNombre() != null && !dto.getNombre().isBlank()) {
+            usuario.setNombre(dto.getNombre());
+        }
+
+        if (dto.getNuevaContrasenia() != null && !dto.getNuevaContrasenia().isBlank()) {
+            if (dto.getContraseniaActual() == null || dto.getContraseniaActual().isBlank()) {
+                throw new IllegalArgumentException("Debe proporcionar su contraseña actual para cambiarla.");
+            }
+            if (!BCrypt.checkpw(dto.getContraseniaActual(), usuario.getContrasenia())) {
+                throw new IllegalArgumentException("La contraseña actual es incorrecta.");
+            }
+            if (dto.getNuevaContrasenia().length() < 6) {
+                throw new IllegalArgumentException("La nueva contraseña debe tener al menos 6 caracteres.");
+            }
+            String passwordEncriptado = BCrypt.hashpw(dto.getNuevaContrasenia(), BCrypt.gensalt());
+            usuario.setContrasenia(passwordEncriptado);
+        }
+
+        return usuarioRepository.save(usuario);
+    }
+
     public void eliminarUsuario(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
