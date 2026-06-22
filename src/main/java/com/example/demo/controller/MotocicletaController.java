@@ -44,7 +44,11 @@ public class MotocicletaController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MotocicletaResponseDTO> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<MotocicletaResponseDTO> obtenerPorId(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
         return ResponseEntity.ok(motocicletaService.obtenerPorId(id));
     }
 
@@ -52,7 +56,7 @@ public class MotocicletaController {
     public ResponseEntity<MotocicletaResponseDTO> actualizarMotocicleta(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
-            @PathVariable Long id, 
+            @PathVariable Long id,
             @Valid @RequestBody MotocicletaRequestDTO requestDTO) {
         jwtUtil.validarAdmin(tokenHeader, cookieToken);
         return ResponseEntity.ok(motocicletaService.actualizarMotocicleta(id, requestDTO));
