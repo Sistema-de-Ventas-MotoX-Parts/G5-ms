@@ -155,6 +155,39 @@ public class FacturaService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public FacturaDTO actualizarEstado(Long id, String nuevoEstadoStr) {
+        Factura factura = facturaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Factura no encontrada"));
+
+        EstadoFactura nuevoEstado;
+        try {
+            nuevoEstado = EstadoFactura.valueOf(nuevoEstadoStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado de factura no válido: " + nuevoEstadoStr);
+        }
+
+        // Si cambia a CANCELADA y el estado anterior no era CANCELADA, devolvemos el stock
+        if (nuevoEstado == EstadoFactura.CANCELADA && factura.getEstado() != EstadoFactura.CANCELADA) {
+            if (factura.getDetalles() != null) {
+                for (DetalleFactura detalle : factura.getDetalles()) {
+                    Producto producto = detalle.getProducto();
+                    producto.setStock(producto.getStock() + detalle.getCantidad());
+                    productoRepository.save(producto);
+                }
+            }
+        }
+
+        // Por consistencia, prohibimos reactivar una factura cancelada
+        if (factura.getEstado() == EstadoFactura.CANCELADA && nuevoEstado != EstadoFactura.CANCELADA) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede reactivar una factura que ya ha sido cancelada");
+        }
+
+        factura.setEstado(nuevoEstado);
+        Factura saved = facturaRepository.save(factura);
+        return convertToDTO(saved);
+    }
+
     private FacturaDTO convertToDTO(Factura factura) {
         FacturaDTO dto = new FacturaDTO();
         dto.setId(factura.getId());
