@@ -363,3 +363,49 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 #### 7. Obtener Motocicleta por Patente
 *   **Método**: `GET`
 *   **URL**: `http://localhost:8080/api/motocicletas/patente/AB123CD`
+
+---
+
+### I. Gestión de Órdenes de Taller (Requiere Admin)
+
+#### 1. Crear una Orden
+*   **Método**: `POST`
+*   **URL**: `http://localhost:8080/api/ordenes`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>`
+*   **Body (JSON)**:
+```json
+{
+  "idMoto": 1,
+  "telefonoContacto": "1122334455",
+  "estado": "MOTO_INGRESADA",
+  "notas": "Mantenimiento general",
+  "servicios": [
+    { "idServicio": 1 }
+  ],
+  "productos": [
+    { "idProducto": 1, "cantidad": 3 }
+  ]
+}
+```
+*Nota: Al crear una orden, el sistema generará automáticamente una Factura pendiente y descontará el stock de los productos.*
+
+#### 2. Listar todas las Órdenes
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/ordenes`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>`
+
+#### 3. Obtener Orden por ID
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/ordenes/1`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>`
+
+#### 4. Editar Orden
+*   **Método**: `PUT`
+*   **URL**: `http://localhost:8080/api/ordenes/1`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>`
+*   **Body (JSON)**: Igual que al crear.
+
+#### 5. Eliminar Orden
+*   **Método**: `DELETE`
+*   **URL**: `http://localhost:8080/api/ordenes/1`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>`
