@@ -24,6 +24,8 @@ public class OrdenRequestDTO {
 
     private List<OrdenProductoRequestDTO> productos;
 
+    private Long idMecanico;
+
     public Long getIdMoto() {
         return idMoto;
     }
@@ -86,5 +88,13 @@ public class OrdenRequestDTO {
 
     public void setProductos(List<OrdenProductoRequestDTO> productos) {
         this.productos = productos;
+    }
+
+    public Long getIdMecanico() {
+        return idMecanico;
+    }
+
+    public void setIdMecanico(Long idMecanico) {
+        this.idMecanico = idMecanico;
     }
 }

@@ -17,4 +17,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Transactional
     @Query(value = "UPDATE usuarios SET id_rol = :rolId WHERE id_rol = 0 OR id_rol IS NULL", nativeQuery = true)
     void fixUsuariosSinRol(@Param("rolId") Long rolId);
+
+    @Query("SELECT u FROM Usuario u WHERE u.rol.nombreRol = :nombreRol AND u.activo = true")
+    java.util.List<Usuario> findByRolNombreRolAndActivo(@Param("nombreRol") com.example.demo.model.NombreRol nombreRol);
 }

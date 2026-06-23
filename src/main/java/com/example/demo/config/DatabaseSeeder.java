@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -44,9 +45,14 @@ public class DatabaseSeeder implements CommandLineRunner {
             System.err.println("Aviso: No se pudieron actualizar los estados 'activo'. (Quizás falten tablas).");
         }
         
-        // Sembrar roles si no existen
-        Rol adminRol = seedRol(NombreRol.ADMIN);
-        Rol userRol = seedRol(NombreRol.USER);
+        // 2. Sembrar todos los roles del Enum de forma dinámica
+        for (NombreRol nombreRol : NombreRol.values()) {
+            seedRol(nombreRol);
+        }
+        
+        // Obtenemos las referencias a los roles que necesitamos para los usuarios por defecto
+        Rol adminRol = rolRepository.findByNombreRol(NombreRol.ADMIN).get();
+        Rol userRol = rolRepository.findByNombreRol(NombreRol.USER).get();
 
         // Corregir usuarios existentes sin rol o con id_rol = 0
         usuarioRepository.fixUsuariosSinRol(userRol.getIdRol());
@@ -63,6 +69,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             admin.setContrasenia(passwordEncriptado);
             admin.setRol(adminRol);
             admin.setActivo(true);
+            admin.setFechaAlta(LocalDateTime.now()); 
+            
             usuarioRepository.save(admin);
             System.out.println("Usuario ADMIN creado exitosamente (admin@admin / Admin123).");
         } else {
@@ -80,8 +88,12 @@ public class DatabaseSeeder implements CommandLineRunner {
             consumidor.setContrasenia(passwordEncriptado);
             consumidor.setRol(userRol);
             consumidor.setActivo(true);
+            consumidor.setFechaAlta(LocalDateTime.now()); 
+            
             usuarioRepository.save(consumidor);
             System.out.println("Usuario Consumidor Final creado exitosamente.");
+        } else {
+            System.out.println("Usuario Consumidor Final ya existe.");
         }
 
         // Sembrar métodos de pago
@@ -93,7 +105,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         return rolRepository.findByNombreRol(nombreRol)
                 .orElseGet(() -> {
                     Rol nuevoRol = new Rol(nombreRol);
-                    return rolRepository.save(nuevoRol);
+                    Rol guardado = rolRepository.save(nuevoRol);
+                    System.out.println("Rol '" + nombreRol.name() + "' inicializado.");
+                    return guardado;
                 });
     }
 

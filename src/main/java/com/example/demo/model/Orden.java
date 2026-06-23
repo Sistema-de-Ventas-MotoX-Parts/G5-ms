@@ -58,6 +58,10 @@ public class Orden {
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
     private List<Factura> facturas = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "id_mecanico", nullable = true)
+    private Usuario mecanico;
+
     public Long getId() {
         return id;
     }
@@ -128,5 +132,13 @@ public class Orden {
 
     public void setFacturas(List<Factura> facturas) {
         this.facturas = facturas;
+    }
+
+    public Usuario getMecanico() {
+        return mecanico;
+    }
+
+    public void setMecanico(Usuario mecanico) {
+        this.mecanico = mecanico;
     }
 }

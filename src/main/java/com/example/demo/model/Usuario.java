@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,10 +42,42 @@ public class Usuario {
     @JoinColumn(name = "id_rol", nullable = false)
     private Rol rol;
     
-    @NotNull(message = "El estado del usuario es obligatorio")
 	@Column(nullable = false)
 	private Boolean activo;
+    
+    @Column(name = "fecha_alta", nullable = false)
+    private LocalDateTime fechaAlta;
 
+	@Column(name = "imagen_url")
+	private String imagenUrl;
+	
+	@Column(name = "fecha_baja") // Nombre de columna distinto
+    private LocalDateTime fechaBaja; // Sin @NotNull, ya que un usuario activo no
+	
+	public LocalDateTime getFechaAlta() {
+		return fechaAlta;
+	}
+
+	public void setFechaAlta(LocalDateTime fechaAlta) {
+		this.fechaAlta = fechaAlta;
+	}
+
+	public String getImagenUrl() {
+		return imagenUrl;
+	}
+
+	public void setImagenUrl(String imagenUrl) {
+		this.imagenUrl = imagenUrl;
+	}
+
+	public LocalDateTime getFechaBaja() {
+		return fechaBaja;
+	}
+
+	public void setFechaBaja(LocalDateTime fechaBaja) {
+		this.fechaBaja = fechaBaja;
+	}
+	
     public Long getId() {
         return id;
     }

@@ -36,9 +36,10 @@ public class OrdenController {
     @GetMapping
     public ResponseEntity<List<OrdenResponseDTO>> obtenerTodas(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
-            @CookieValue(value = "token_jwt", required = false) String cookieToken) {
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @RequestParam(required = false) Long idMecanico) {
         jwtUtil.validarAdmin(tokenHeader, cookieToken);
-        return ResponseEntity.ok(ordenService.obtenerTodas());
+        return ResponseEntity.ok(ordenService.obtenerTodas(idMecanico));
     }
 
     @GetMapping("/{id}")

@@ -5,9 +5,12 @@ import com.example.demo.model.Rol;
 import com.example.demo.model.Usuario;
 import com.example.demo.repository.RolRepository;
 import com.example.demo.repository.UsuarioRepository;
+import com.example.demo.dto.PerfilActualizarDTO;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,10 +35,15 @@ public class UsuarioService {
         String passwordEncriptado = BCrypt.hashpw(usuario.getContrasenia(), BCrypt.gensalt());
         usuario.setContrasenia(passwordEncriptado);
 
-        Rol userRol = rolRepository.findByNombreRol(NombreRol.USER)
-                .orElseThrow(() -> new IllegalStateException("El rol USER no está inicializado."));
+        // MODIFICACION: ROL CLIENTE 
+        Rol userRol = rolRepository.findByNombreRol(NombreRol.CLIENT)
+                .orElseThrow(() -> new IllegalStateException("El rol CLIENT no está inicializado."));
+        
         usuario.setRol(userRol);
         usuario.setActivo(true);
+        
+        // Asignamos la fecha de alta al momento del registro
+        usuario.setFechaAlta(LocalDateTime.now());
 
         return usuarioRepository.save(usuario);
     }
@@ -86,6 +94,9 @@ public class UsuarioService {
         }
 
         usuario.setActivo(true);
+        
+        // Asignamos la fecha de creación
+        usuario.setFechaAlta(LocalDateTime.now());
 
         return usuarioRepository.save(usuario);
     }
@@ -122,17 +133,32 @@ public class UsuarioService {
             usuario.setRol(rolDb);
         }
 
+        // Actualización de la imagen si se envía
+        if (usuarioActualizado.getImagenUrl() != null) {
+            usuario.setImagenUrl(usuarioActualizado.getImagenUrl());
+        }
+
         return usuarioRepository.save(usuario);
     }
-
-    public Usuario actualizarMiPerfil(Long id, com.example.demo.dto.PerfilActualizarDTO dto) {
+    
+    
+    //ACTUALIZAR DATOS DEL USUARIO
+    
+    public Usuario actualizarMiPerfil(Long id, PerfilActualizarDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
 
+        // Actualiza el nombre si se proporciona
         if (dto.getNombre() != null && !dto.getNombre().isBlank()) {
             usuario.setNombre(dto.getNombre());
         }
 
+        // Actualiza la imagen de perfil si se proporciona
+        if (dto.getImagenUrl() != null) {
+            usuario.setImagenUrl(dto.getImagenUrl());
+        }
+
+        // Procesa el cambio de contraseña si se solicita una nueva
         if (dto.getNuevaContrasenia() != null && !dto.getNuevaContrasenia().isBlank()) {
             if (dto.getContraseniaActual() == null || dto.getContraseniaActual().isBlank()) {
                 throw new IllegalArgumentException("Debe proporcionar su contraseña actual para cambiarla.");
@@ -150,10 +176,17 @@ public class UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    
+    //DAR DE BAJA USUARIO
     public void eliminarUsuario(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+        
         usuario.setActivo(false);
+        // Registramos la fecha exacta en la que se dio de baja al usuario
+        usuario.setFechaBaja(LocalDateTime.now());
+        
+        //Modificamos el email para que no de problemas a futuros registros
         usuario.setEmail(usuario.getEmail() + "_eliminado_" + System.currentTimeMillis());
         usuarioRepository.save(usuario);
     }
@@ -162,6 +195,10 @@ public class UsuarioService {
         return usuarioRepository.findAll().stream()
                 .filter(u -> Boolean.TRUE.equals(u.getActivo()))
                 .collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<Usuario> obtenerMecanicos() {
+        return usuarioRepository.findByRolNombreRolAndActivo(NombreRol.MECHANIC);
     }
 
     public Usuario obtenerPorId(Long id) {

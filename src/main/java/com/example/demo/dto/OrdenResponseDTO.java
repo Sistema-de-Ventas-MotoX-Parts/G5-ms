@@ -17,6 +17,8 @@ public class OrdenResponseDTO {
     private List<OrdenServicioResponseDTO> servicios;
     private List<OrdenProductoResponseDTO> productos;
     private List<FacturaDTO> facturas;
+    private Long idMecanico;
+    private String nombreMecanico;
 
     public Long getId() {
         return id;
@@ -106,5 +108,21 @@ public class OrdenResponseDTO {
 
     public void setFacturas(List<FacturaDTO> facturas) {
         this.facturas = facturas;
+    }
+
+    public Long getIdMecanico() {
+        return idMecanico;
+    }
+
+    public void setIdMecanico(Long idMecanico) {
+        this.idMecanico = idMecanico;
+    }
+
+    public String getNombreMecanico() {
+        return nombreMecanico;
+    }
+
+    public void setNombreMecanico(String nombreMecanico) {
+        this.nombreMecanico = nombreMecanico;
     }
 }

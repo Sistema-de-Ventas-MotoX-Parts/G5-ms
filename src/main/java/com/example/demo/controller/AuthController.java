@@ -144,6 +144,16 @@ public class AuthController {
         return ResponseEntity.ok(usuarios);
     }
 
+    @GetMapping("/usuarios/mecanicos")
+    public ResponseEntity<?> obtenerMecanicos(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        java.util.List<Usuario> mecanicos = usuarioService.obtenerMecanicos();
+        mecanicos.forEach(u -> u.setContrasenia(null));
+        return ResponseEntity.ok(mecanicos);
+    }
+
     @GetMapping("/usuarios/{id}")
     public ResponseEntity<?> obtenerPorId(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,

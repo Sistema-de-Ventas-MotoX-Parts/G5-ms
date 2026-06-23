@@ -2,5 +2,7 @@ package com.example.demo.model;
 
 public enum NombreRol {
     ADMIN,
-    USER
+    USER, 
+    CLIENT,
+    MECHANIC
 }

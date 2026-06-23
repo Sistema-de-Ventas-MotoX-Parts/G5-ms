@@ -85,6 +85,19 @@ public class OrdenService {
         orden.setEstado(requestDTO.getEstado());
         orden.setNotas(requestDTO.getNotas());
 
+        // Validar y asignar mecánico si se proporciona
+        if (requestDTO.getIdMecanico() != null) {
+            Usuario mecanico = usuarioRepository.findById(requestDTO.getIdMecanico())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mecánico no encontrado"));
+            if (!Boolean.TRUE.equals(mecanico.getActivo())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El mecánico asignado no está activo");
+            }
+            if (mecanico.getRol() == null || mecanico.getRol().getNombreRol() != NombreRol.MECHANIC) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario asignado no tiene el rol de mecánico");
+            }
+            orden.setMecanico(mecanico);
+        }
+
         // Guardar orden inicial
         Orden ordenGuardada = ordenRepository.save(orden);
 
@@ -183,8 +196,9 @@ public class OrdenService {
         return obtenerPorId(ordenGuardada.getId());
     }
 
-    public List<OrdenResponseDTO> obtenerTodas() {
+    public List<OrdenResponseDTO> obtenerTodas(Long idMecanico) {
         return ordenRepository.findAll().stream()
+                .filter(o -> idMecanico == null || (o.getMecanico() != null && o.getMecanico().getId().equals(idMecanico)))
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -210,6 +224,21 @@ public class OrdenService {
         orden.setTelefonoContacto(requestDTO.getTelefonoContacto());
         orden.setEstado(requestDTO.getEstado());
         orden.setNotas(requestDTO.getNotas());
+
+        // Validar y asignar mecánico si se proporciona
+        if (requestDTO.getIdMecanico() != null) {
+            Usuario mecanico = usuarioRepository.findById(requestDTO.getIdMecanico())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mecánico no encontrado"));
+            if (!Boolean.TRUE.equals(mecanico.getActivo())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El mecánico asignado no está activo");
+            }
+            if (mecanico.getRol() == null || mecanico.getRol().getNombreRol() != NombreRol.MECHANIC) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El usuario asignado no tiene el rol de mecánico");
+            }
+            orden.setMecanico(mecanico);
+        } else {
+            orden.setMecanico(null);
+        }
 
         // Si se actualizan servicios y productos, recalculamos la factura pendiente si existe
         // Para simplificar y mantener la consistencia: si hay una factura PENDIENTE asociada, la actualizamos
@@ -363,6 +392,11 @@ public class OrdenService {
         dto.setTelefonoContacto(orden.getTelefonoContacto());
         dto.setEstado(orden.getEstado());
         dto.setNotas(orden.getNotas());
+
+        if (orden.getMecanico() != null) {
+            dto.setIdMecanico(orden.getMecanico().getId());
+            dto.setNombreMecanico(orden.getMecanico().getNombre());
+        }
 
         // Mapear servicios
         if (orden.getServicios() != null) {
