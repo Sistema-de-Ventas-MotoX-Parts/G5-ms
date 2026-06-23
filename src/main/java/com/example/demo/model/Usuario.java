@@ -45,8 +45,8 @@ public class Usuario {
 	@Column(nullable = false)
 	private Boolean activo;
     
-    @Column(name = "fecha_alta", nullable = false)
-    private LocalDateTime fechaAlta;
+	@Column(name = "fecha_alta", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+	private LocalDateTime fechaAlta;
 
 	@Column(name = "imagen_url")
 	private String imagenUrl;
