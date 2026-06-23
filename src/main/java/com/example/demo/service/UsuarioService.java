@@ -84,7 +84,7 @@ public class UsuarioService {
         usuario.setContrasenia(passwordEncriptado);
 
         if (usuario.getRol() == null) {
-            Rol userRol = rolRepository.findByNombreRol(NombreRol.USER)
+            Rol userRol = rolRepository.findByNombreRol(NombreRol.CLIENT)
                     .orElseThrow(() -> new IllegalStateException("El rol USER no está inicializado."));
             usuario.setRol(userRol);
         } else {
@@ -138,6 +138,11 @@ public class UsuarioService {
             usuario.setImagenUrl(usuarioActualizado.getImagenUrl());
         }
 
+        // Actualización de la dirección si se envía
+        if (usuarioActualizado.getDireccion() != null) {
+            usuario.setDireccion(usuarioActualizado.getDireccion());
+        }
+
         return usuarioRepository.save(usuario);
     }
     
@@ -156,6 +161,11 @@ public class UsuarioService {
         // Actualiza la imagen de perfil si se proporciona
         if (dto.getImagenUrl() != null) {
             usuario.setImagenUrl(dto.getImagenUrl());
+        }
+
+        // Actualiza la dirección si se proporciona
+        if (dto.getDireccion() != null) {
+            usuario.setDireccion(dto.getDireccion());
         }
 
         // Procesa el cambio de contraseña si se solicita una nueva

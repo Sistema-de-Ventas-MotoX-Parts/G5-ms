@@ -50,10 +50,14 @@ public class Usuario {
 
 	@Column(name = "imagen_url")
 	private String imagenUrl;
+
+	@Column(name = "direccion")
+	private String direccion;
 	
-	@Column(name = "fecha_baja") // Nombre de columna distinto
-    private LocalDateTime fechaBaja; // Sin @NotNull, ya que un usuario activo no
+	@Column(name = "fecha_baja") 
+    private LocalDateTime fechaBaja; 
 	
+
 	public LocalDateTime getFechaAlta() {
 		return fechaAlta;
 	}
@@ -124,5 +128,13 @@ public class Usuario {
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 }

@@ -80,7 +80,7 @@ public class UsuarioController {
     }
     
     /**
-     * Actualiza nombre y contraseña del usuario
+     * Actualiza nombre y contraseña del usuario, foto de perfil
      */
 
     @PutMapping("/perfil")

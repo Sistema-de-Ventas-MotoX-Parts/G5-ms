@@ -6,6 +6,7 @@ public class PerfilActualizarDTO {
     private String contraseniaActual;
     private String nuevaContrasenia;
     private String imagenUrl; // Nuevo campo agregado
+    private String direccion;
 
     public String getNombre() {
         return nombre;
@@ -37,5 +38,13 @@ public class PerfilActualizarDTO {
 
     public void setImagenUrl(String imagenUrl) {
         this.imagenUrl = imagenUrl;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 }
