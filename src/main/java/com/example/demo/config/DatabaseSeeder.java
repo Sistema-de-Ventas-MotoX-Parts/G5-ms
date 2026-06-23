@@ -101,6 +101,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (metodoPagoRepository.findByNombre(nombre).isEmpty()) {
             MetodoPago mp = new MetodoPago();
             mp.setNombre(nombre);
+            mp.setActivo(true);
             metodoPagoRepository.save(mp);
             System.out.println("Método de pago '" + nombre + "' creado exitosamente.");
         }

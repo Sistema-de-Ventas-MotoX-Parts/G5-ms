@@ -21,6 +21,9 @@ public class UsuarioService {
     private RolRepository rolRepository;
 
     public Usuario registrar(Usuario usuario) {
+        if (usuario.getEmail() != null) usuario.setEmail(usuario.getEmail().trim());
+        if (usuario.getNombre() != null) usuario.setNombre(usuario.getNombre().trim());
+
         Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(usuario.getEmail());
         if (usuarioExistente.isPresent()) {
             throw new IllegalArgumentException("El correo electrónico ya está registrado.");
@@ -38,6 +41,8 @@ public class UsuarioService {
     }
 
     public Usuario login(String email, String contrasenia) {
+        if (email != null) email = email.trim();
+
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Correo electrónico o contraseña incorrectos."));
 
@@ -53,6 +58,9 @@ public class UsuarioService {
     }
 
     public Usuario crearUsuario(Usuario usuario) {
+        if (usuario.getEmail() != null) usuario.setEmail(usuario.getEmail().trim());
+        if (usuario.getNombre() != null) usuario.setNombre(usuario.getNombre().trim());
+
         if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
             throw new IllegalArgumentException("El email es obligatorio.");
         }

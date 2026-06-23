@@ -32,7 +32,7 @@ public class MetodoPagoService {
 
     public MetodoPagoDTO save(MetodoPagoDTO metodoPagoDTO) {
         MetodoPago metodoPago = new MetodoPago();
-        metodoPago.setNombre(metodoPagoDTO.getNombre());
+        metodoPago.setNombre(metodoPagoDTO.getNombre() != null ? metodoPagoDTO.getNombre().toUpperCase() : null);
         metodoPago.setActivo(true);
         
         MetodoPago saved = metodoPagoRepository.save(metodoPago);
@@ -42,7 +42,7 @@ public class MetodoPagoService {
     public MetodoPagoDTO update(Long id, MetodoPagoDTO metodoPagoDTO) {
         MetodoPago metodoPago = metodoPagoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
-        metodoPago.setNombre(metodoPagoDTO.getNombre());
+        metodoPago.setNombre(metodoPagoDTO.getNombre() != null ? metodoPagoDTO.getNombre().toUpperCase() : null);
         MetodoPago saved = metodoPagoRepository.save(metodoPago);
         return convertToDTO(saved);
     }

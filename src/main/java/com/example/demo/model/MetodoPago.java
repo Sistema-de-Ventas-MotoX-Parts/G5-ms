@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "metodos_pago")
@@ -21,7 +22,7 @@ public class MetodoPago {
     private String nombre;
 
     //Campo para desactivar Metodo de pago
-    @NotBlank(message = "El estado de metodos de pago es obligatorio")
+    @NotNull(message = "El estado de metodos de pago es obligatorio")
     @Column(nullable=false)
     private Boolean activo;
     
