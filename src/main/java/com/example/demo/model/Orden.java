@@ -62,6 +62,14 @@ public class Orden {
     @JoinColumn(name = "id_mecanico", nullable = true)
     private Usuario mecanico;
 
+    @ManyToOne
+    @JoinColumn(name = "id_cliente", nullable = true)
+    private Usuario cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "id_metodo_pago", nullable = true)
+    private MetodoPago metodoPago;
+
     public Long getId() {
         return id;
     }
@@ -140,5 +148,21 @@ public class Orden {
 
     public void setMecanico(Usuario mecanico) {
         this.mecanico = mecanico;
+    }
+
+    public Usuario getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Usuario cliente) {
+        this.cliente = cliente;
+    }
+
+    public MetodoPago getMetodoPago() {
+        return metodoPago;
+    }
+
+    public void setMetodoPago(MetodoPago metodoPago) {
+        this.metodoPago = metodoPago;
     }
 }

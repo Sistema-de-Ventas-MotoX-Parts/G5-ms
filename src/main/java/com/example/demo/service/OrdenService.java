@@ -67,7 +67,7 @@ public class OrdenService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "La motocicleta no tiene un usuario asociado y el usuario de fallback 'consumidor@final' no fue encontrado."));
         }
 
-        // 3. Validar método de pago para la factura
+        // 3. Validar método de pago preferido
         MetodoPago metodoPago = null;
         if (requestDTO.getIdMetodoPago() != null) {
             metodoPago = metodoPagoRepository.findById(requestDTO.getIdMetodoPago())
@@ -84,6 +84,8 @@ public class OrdenService {
         orden.setTelefonoContacto(requestDTO.getTelefonoContacto());
         orden.setEstado(requestDTO.getEstado());
         orden.setNotas(requestDTO.getNotas());
+        orden.setCliente(usuario);
+        orden.setMetodoPago(metodoPago);
 
         // Validar y asignar mecánico si se proporciona
         if (requestDTO.getIdMecanico() != null) {
@@ -101,19 +103,8 @@ public class OrdenService {
         // Guardar orden inicial
         Orden ordenGuardada = ordenRepository.save(orden);
 
-        double totalFactura = 0.0;
-
         // 5. Procesar servicios
         List<OrdenServicio> ordenServicios = new ArrayList<>();
-        List<DetalleFacturaServicio> detallesServiciosFactura = new ArrayList<>();
-        
-        Factura factura = new Factura();
-        factura.setUsuario(usuario);
-        factura.setMetodoPago(metodoPago);
-        factura.setOrden(ordenGuardada);
-        factura.setFecha(LocalDateTime.now());
-        factura.setEstado(EstadoFactura.PENDIENTE);
-
         if (requestDTO.getServicios() != null) {
             for (OrdenServicioRequestDTO servReq : requestDTO.getServicios()) {
                 Servicio servicio = servicioRepository.findById(servReq.getIdServicio())
@@ -126,24 +117,12 @@ public class OrdenService {
                 double precioAcordado = servReq.getPrecioAcordado() != null ? servReq.getPrecioAcordado() : servicio.getPrecioBase();
                 ordenServicio.setPrecioAcordado(precioAcordado);
                 ordenServicios.add(ordenServicio);
-
-                // Crear detalle de factura para el servicio
-                DetalleFacturaServicio detalleServicio = new DetalleFacturaServicio();
-                detalleServicio.setFactura(factura);
-                detalleServicio.setServicio(servicio);
-                detalleServicio.setPrecioUnitario(precioAcordado);
-                detalleServicio.setSubtotal(precioAcordado);
-                detallesServiciosFactura.add(detalleServicio);
-
-                totalFactura += precioAcordado;
             }
         }
         ordenGuardada.setServicios(ordenServicios);
 
         // 6. Procesar productos
         List<OrdenProducto> productosOrden = new ArrayList<>();
-        List<DetalleFactura> detallesProductosFactura = new ArrayList<>();
-
         if (requestDTO.getProductos() != null) {
             for (OrdenProductoRequestDTO prodReq : requestDTO.getProductos()) {
                 Producto producto = productoRepository.findById(prodReq.getIdProducto())
@@ -165,19 +144,6 @@ public class OrdenService {
                 ordenProducto.setProducto(producto);
                 ordenProducto.setCantidad(cantidad);
                 productosOrden.add(ordenProducto);
-
-                // Crear detalle de factura para el producto
-                DetalleFactura detalleFactura = new DetalleFactura();
-                detalleFactura.setFactura(factura);
-                detalleFactura.setProducto(producto);
-                detalleFactura.setCantidad(cantidad);
-                detalleFactura.setPrecioUnitario(producto.getPrecio());
-                
-                double subtotal = producto.getPrecio() * cantidad;
-                detalleFactura.setSubtotal(subtotal);
-                detallesProductosFactura.add(detalleFactura);
-
-                totalFactura += subtotal;
             }
         }
         ordenGuardada.setProductos(productosOrden);
@@ -185,12 +151,10 @@ public class OrdenService {
         // Guardar la orden actualizada
         ordenGuardada = ordenRepository.save(ordenGuardada);
 
-        // 7. Configurar y guardar la factura
-        factura.setDetalles(detallesProductosFactura);
-        factura.setDetallesServicios(detallesServiciosFactura);
-        factura.setTotal(totalFactura);
-
-        facturaRepository.save(factura);
+        // Si se finaliza el servicio de inmediato, generar la factura
+        if (ordenGuardada.getEstado() == EstadoOrden.SERVICE_TERMINADO) {
+            generarFactura(ordenGuardada);
+        }
 
         // Volver a cargar para traer facturas mapeadas correctamente
         return obtenerPorId(ordenGuardada.getId());
@@ -240,32 +204,38 @@ public class OrdenService {
             orden.setMecanico(null);
         }
 
-        // Si se actualizan servicios y productos, recalculamos la factura pendiente si existe
-        // Para simplificar y mantener la consistencia: si hay una factura PENDIENTE asociada, la actualizamos
+        // Actualizar preferencias de cliente y método de pago
+        if (requestDTO.getIdUsuario() != null) {
+            Usuario cliente = usuarioRepository.findById(requestDTO.getIdUsuario())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente no encontrado"));
+            orden.setCliente(cliente);
+        }
+        if (requestDTO.getIdMetodoPago() != null) {
+            MetodoPago metodoPago = metodoPagoRepository.findById(requestDTO.getIdMetodoPago())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
+            orden.setMetodoPago(metodoPago);
+        }
+
+        // Buscar si ya existe una factura en estado PENDIENTE asociada a la orden
         Factura factura = facturaRepository.findAll().stream()
                 .filter(f -> f.getOrden() != null && f.getOrden().getId().equals(id) && f.getEstado() == EstadoFactura.PENDIENTE)
                 .findFirst()
                 .orElse(null);
 
         if (factura != null) {
-            // Devolver stock de productos anteriores
+            // Caso A: Ya existe una factura. Revertimos y actualizamos tanto la factura como la orden.
             for (DetalleFactura detalle : factura.getDetalles()) {
                 Producto producto = detalle.getProducto();
                 producto.setStock(producto.getStock() + detalle.getCantidad());
                 productoRepository.save(producto);
             }
 
-            // Limpiar detalles anteriores
             factura.getDetalles().clear();
             factura.getDetallesServicios().clear();
 
             double totalFactura = 0.0;
 
-            // Procesar nuevos servicios
-            // Limpiamos la colección existente y le agregamos los nuevos elementos
-            // para evitar reemplazar la referencia de la colección gestionada por Hibernate (orphanRemoval = true)
             orden.getServicios().clear();
-
             if (requestDTO.getServicios() != null) {
                 for (OrdenServicioRequestDTO servReq : requestDTO.getServicios()) {
                     Servicio servicio = servicioRepository.findById(servReq.getIdServicio())
@@ -290,7 +260,6 @@ public class OrdenService {
                 }
             }
 
-            // Procesar nuevos productos
             orden.getProductos().clear();
             if (requestDTO.getProductos() != null) {
                 for (OrdenProductoRequestDTO prodReq : requestDTO.getProductos()) {
@@ -303,7 +272,6 @@ public class OrdenService {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock insuficiente para el producto: " + producto.getNombre());
                     }
 
-                    // Descontar stock
                     producto.setStock(producto.getStock() - cantidad);
                     productoRepository.save(producto);
 
@@ -328,7 +296,6 @@ public class OrdenService {
             }
             factura.setTotal(totalFactura);
 
-            // Si se envió un nuevo método de pago
             if (requestDTO.getIdMetodoPago() != null) {
                 MetodoPago metodoPago = metodoPagoRepository.findById(requestDTO.getIdMetodoPago())
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
@@ -336,9 +303,65 @@ public class OrdenService {
             }
 
             facturaRepository.save(factura);
+        } else {
+            // Caso B: Aún no existe la factura (orden en progreso). Gestionamos el stock directamente sobre la orden.
+            if (orden.getProductos() != null) {
+                for (OrdenProducto op : orden.getProductos()) {
+                    Producto producto = op.getProducto();
+                    producto.setStock(producto.getStock() + op.getCantidad());
+                    productoRepository.save(producto);
+                }
+                orden.getProductos().clear();
+            }
+
+            if (requestDTO.getProductos() != null) {
+                for (OrdenProductoRequestDTO prodReq : requestDTO.getProductos()) {
+                    Producto producto = productoRepository.findById(prodReq.getIdProducto())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
+
+                    int cantidad = prodReq.getCantidad() != null ? prodReq.getCantidad() : 1;
+
+                    if (producto.getStock() < cantidad) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock insuficiente para el producto: " + producto.getNombre());
+                    }
+
+                    producto.setStock(producto.getStock() - cantidad);
+                    productoRepository.save(producto);
+
+                    OrdenProducto ordenProducto = new OrdenProducto();
+                    ordenProducto.setOrden(orden);
+                    ordenProducto.setProducto(producto);
+                    ordenProducto.setCantidad(cantidad);
+                    orden.getProductos().add(ordenProducto);
+                }
+            }
+
+            if (orden.getServicios() != null) {
+                orden.getServicios().clear();
+            }
+            if (requestDTO.getServicios() != null) {
+                for (OrdenServicioRequestDTO servReq : requestDTO.getServicios()) {
+                    Servicio servicio = servicioRepository.findById(servReq.getIdServicio())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Servicio no encontrado"));
+
+                    OrdenServicio ordenServicio = new OrdenServicio();
+                    ordenServicio.setOrden(orden);
+                    ordenServicio.setServicio(servicio);
+
+                    double precioAcordado = servReq.getPrecioAcordado() != null ? servReq.getPrecioAcordado() : servicio.getPrecioBase();
+                    ordenServicio.setPrecioAcordado(precioAcordado);
+                    orden.getServicios().add(ordenServicio);
+                }
+            }
         }
 
         Orden saved = ordenRepository.save(orden);
+
+        // Si se cambia a terminado y no se había facturado, se genera la factura
+        if (saved.getEstado() == EstadoOrden.SERVICE_TERMINADO) {
+            generarFactura(saved);
+        }
+
         return convertToResponseDTO(saved);
     }
 
@@ -356,6 +379,11 @@ public class OrdenService {
 
         orden.setEstado(nuevoEstado);
         Orden saved = ordenRepository.save(orden);
+
+        if (nuevoEstado == EstadoOrden.SERVICE_TERMINADO) {
+            generarFactura(saved);
+        }
+
         return convertToResponseDTO(saved);
     }
 
@@ -364,17 +392,29 @@ public class OrdenService {
         Orden orden = ordenRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
 
-        // Si se elimina la orden, devolvemos el stock de los productos asociados a la factura PENDIENTE si existe
+        // Buscar facturas asociadas a la orden
         List<Factura> facturasAsociadas = facturaRepository.findAll().stream()
                 .filter(f -> f.getOrden() != null && f.getOrden().getId().equals(id))
                 .collect(Collectors.toList());
 
-        for (Factura f : facturasAsociadas) {
-            if (f.getEstado() == EstadoFactura.PENDIENTE) {
-                for (DetalleFactura detalle : f.getDetalles()) {
-                    Producto producto = detalle.getProducto();
-                    producto.setStock(producto.getStock() + detalle.getCantidad());
+        if (facturasAsociadas.isEmpty()) {
+            // Caso sin factura generada aún (orden en progreso): Devolvemos el stock de los productos directamente de la orden
+            if (orden.getProductos() != null) {
+                for (OrdenProducto op : orden.getProductos()) {
+                    Producto producto = op.getProducto();
+                    producto.setStock(producto.getStock() + op.getCantidad());
                     productoRepository.save(producto);
+                }
+            }
+        } else {
+            // Caso con facturas asociadas: Devolvemos stock de productos de la factura PENDIENTE si existe
+            for (Factura f : facturasAsociadas) {
+                if (f.getEstado() == EstadoFactura.PENDIENTE) {
+                    for (DetalleFactura detalle : f.getDetalles()) {
+                        Producto producto = detalle.getProducto();
+                        producto.setStock(producto.getStock() + detalle.getCantidad());
+                        productoRepository.save(producto);
+                    }
                 }
             }
         }
@@ -469,5 +509,77 @@ public class OrdenService {
         }).collect(Collectors.toList()));
 
         return dto;
+    }
+
+    private void generarFactura(Orden orden) {
+        // Verificar si ya existe una factura para esta orden
+        boolean facturaExiste = facturaRepository.findAll().stream()
+                .anyMatch(f -> f.getOrden() != null && f.getOrden().getId().equals(orden.getId()));
+        if (facturaExiste) {
+            return;
+        }
+
+        Factura factura = new Factura();
+        factura.setOrden(orden);
+        factura.setFecha(LocalDateTime.now());
+        factura.setEstado(EstadoFactura.PENDIENTE);
+
+        // Cliente
+        Usuario cliente = orden.getCliente();
+        if (cliente == null) {
+            if (orden.getMotocicleta().getUsuario() != null) {
+                cliente = orden.getMotocicleta().getUsuario();
+            } else {
+                cliente = usuarioRepository.findByEmail("consumidor@final")
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Usuario Consumidor Final no configurado"));
+            }
+        }
+        factura.setUsuario(cliente);
+
+        // Metodo Pago
+        MetodoPago metodoPago = orden.getMetodoPago();
+        if (metodoPago == null) {
+            metodoPago = metodoPagoRepository.findByNombre("EFECTIVO")
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Método de pago EFECTIVO no configurado"));
+        }
+        factura.setMetodoPago(metodoPago);
+
+        double total = 0.0;
+
+        // Detalles de productos
+        List<DetalleFactura> detalles = new ArrayList<>();
+        if (orden.getProductos() != null) {
+            for (OrdenProducto op : orden.getProductos()) {
+                DetalleFactura df = new DetalleFactura();
+                df.setFactura(factura);
+                df.setProducto(op.getProducto());
+                df.setCantidad(op.getCantidad());
+                df.setPrecioUnitario(op.getProducto().getPrecio());
+                double subtotal = op.getProducto().getPrecio() * op.getCantidad();
+                df.setSubtotal(subtotal);
+                detalles.add(df);
+                total += subtotal;
+            }
+        }
+        factura.setDetalles(detalles);
+
+        // Detalles de servicios
+        List<DetalleFacturaServicio> detallesServicios = new ArrayList<>();
+        if (orden.getServicios() != null) {
+            for (OrdenServicio os : orden.getServicios()) {
+                DetalleFacturaServicio dfs = new DetalleFacturaServicio();
+                dfs.setFactura(factura);
+                dfs.setServicio(os.getServicio());
+                dfs.setPrecioUnitario(os.getPrecioAcordado());
+                dfs.setSubtotal(os.getPrecioAcordado());
+                detallesServicios.add(dfs);
+                total += os.getPrecioAcordado();
+            }
+        }
+        factura.setDetallesServicios(detallesServicios);
+
+        factura.setTotal(total);
+
+        facturaRepository.save(factura);
     }
 }

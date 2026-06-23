@@ -5,7 +5,7 @@ public class PerfilActualizarDTO {
     private String nombre;
     private String contraseniaActual;
     private String nuevaContrasenia;
-    private String imagenUrl; // Nuevo campo agregado
+    private String imagenUrl;
     private String direccion;
 
     public String getNombre() {
