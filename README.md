@@ -247,7 +247,7 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
   ]
 }
 ```
-*Nota: El sistema calculará automáticamente los precios, descontará el stock y generará la fecha y estado.*
+*Nota: El sistema calculará automáticamente los precios, descontará el stock y generará la fecha y estado. Si envías un `idOrden` y dejas `detalles` y `detallesServicios` vacíos (`[]`), el sistema heredará automáticamente las cantidades exactas y los servicios que usaste en la Orden.*
 
 #### 2. Listar todas las Facturas
 *   **Método**: `GET`
@@ -256,6 +256,18 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 #### 3. Obtener Factura por ID (Incluyendo Detalles)
 *   **Método**: `GET`
 *   **URL**: `http://localhost:8080/api/facturas/1`
+
+#### 4. Obtener Mis Facturas (Usuario Autenticado)
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/facturas/mis-facturas`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
+
+#### 5. Actualizar Estado de Factura (Admin)
+*   **Método**: `PATCH`
+*   **URL**: `http://localhost:8080/api/facturas/1/estado?estado=CANCELADA`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>` (debe ser un Administrador)
+*   **Parámetro (URL)**: `estado` (ej. `CANCELADA`, `PAGADA`).
+*Nota: Si cancelas una factura, el sistema reabastece automáticamente el stock de los productos involucrados.*
 
 ---
 
