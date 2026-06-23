@@ -72,6 +72,15 @@ public class OrdenController {
         return ResponseEntity.ok(ordenService.actualizarEstado(id, estado, pin));
     }
 
+    @PostMapping("/{id}/reenviar-pin")
+    public ResponseEntity<OrdenResponseDTO> reenviarPin(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        return ResponseEntity.ok(ordenService.reenviarPin(id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarOrden(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
