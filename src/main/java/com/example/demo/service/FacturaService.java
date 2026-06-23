@@ -72,6 +72,32 @@ public class FacturaService {
             Orden orden = ordenRepository.findById(facturaDTO.getIdOrden())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
             factura.setOrden(orden);
+
+            if (facturaDTO.getDetalles() == null || facturaDTO.getDetalles().isEmpty()) {
+                if (facturaDTO.getDetalles() == null) {
+                    facturaDTO.setDetalles(new ArrayList<>());
+                }
+                if (orden.getProductos() != null) {
+                    for (com.example.demo.model.OrdenProducto op : orden.getProductos()) {
+                        DetalleFacturaDTO d = new DetalleFacturaDTO();
+                        d.setIdProducto(op.getProducto().getId());
+                        d.setCantidad(op.getCantidad());
+                        facturaDTO.getDetalles().add(d);
+                    }
+                }
+            }
+            if (facturaDTO.getDetallesServicios() == null || facturaDTO.getDetallesServicios().isEmpty()) {
+                if (facturaDTO.getDetallesServicios() == null) {
+                    facturaDTO.setDetallesServicios(new ArrayList<>());
+                }
+                if (orden.getServicios() != null) {
+                    for (com.example.demo.model.OrdenServicio os : orden.getServicios()) {
+                        DetalleFacturaServicioDTO ds = new DetalleFacturaServicioDTO();
+                        ds.setIdServicio(os.getServicio().getId());
+                        facturaDTO.getDetallesServicios().add(ds);
+                    }
+                }
+            }
         }
         
         factura.setFecha(LocalDateTime.now());

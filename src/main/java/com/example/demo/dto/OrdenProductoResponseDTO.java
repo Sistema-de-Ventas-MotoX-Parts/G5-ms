@@ -4,6 +4,7 @@ public class OrdenProductoResponseDTO {
     private Long idProducto;
     private String nombreProducto;
     private Double precio;
+    private Integer cantidad;
 
     public Long getIdProducto() {
         return idProducto;
@@ -27,5 +28,13 @@ public class OrdenProductoResponseDTO {
 
     public void setPrecio(Double precio) {
         this.precio = precio;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
     }
 }

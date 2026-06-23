@@ -51,13 +51,8 @@ public class Orden {
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrdenServicio> servicios = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "orden_producto",
-        joinColumns = @JoinColumn(name = "id_orden"),
-        inverseJoinColumns = @JoinColumn(name = "id_producto")
-    )
-    private List<Producto> productos = new ArrayList<>();
+    @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrdenProducto> productos = new ArrayList<>();
 
     @JsonIgnoreProperties("orden")
     @OneToMany(mappedBy = "orden", cascade = CascadeType.ALL)
@@ -119,11 +114,11 @@ public class Orden {
         this.servicios = servicios;
     }
 
-    public List<Producto> getProductos() {
+    public List<OrdenProducto> getProductos() {
         return productos;
     }
 
-    public void setProductos(List<Producto> productos) {
+    public void setProductos(List<OrdenProducto> productos) {
         this.productos = productos;
     }
 

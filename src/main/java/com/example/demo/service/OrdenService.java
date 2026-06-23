@@ -128,7 +128,7 @@ public class OrdenService {
         ordenGuardada.setServicios(ordenServicios);
 
         // 6. Procesar productos
-        List<Producto> productosOrden = new ArrayList<>();
+        List<OrdenProducto> productosOrden = new ArrayList<>();
         List<DetalleFactura> detallesProductosFactura = new ArrayList<>();
 
         if (requestDTO.getProductos() != null) {
@@ -146,8 +146,12 @@ public class OrdenService {
                 producto.setStock(producto.getStock() - cantidad);
                 productoRepository.save(producto);
 
-                // Agregar a productos de la orden (como ManyToMany, agregamos el producto)
-                productosOrden.add(producto);
+                // Agregar a productos de la orden
+                OrdenProducto ordenProducto = new OrdenProducto();
+                ordenProducto.setOrden(ordenGuardada);
+                ordenProducto.setProducto(producto);
+                ordenProducto.setCantidad(cantidad);
+                productosOrden.add(ordenProducto);
 
                 // Crear detalle de factura para el producto
                 DetalleFactura detalleFactura = new DetalleFactura();
@@ -274,7 +278,11 @@ public class OrdenService {
                     producto.setStock(producto.getStock() - cantidad);
                     productoRepository.save(producto);
 
-                    orden.getProductos().add(producto);
+                    OrdenProducto ordenProducto = new OrdenProducto();
+                    ordenProducto.setOrden(orden);
+                    ordenProducto.setProducto(producto);
+                    ordenProducto.setCantidad(cantidad);
+                    orden.getProductos().add(ordenProducto);
 
                     DetalleFactura detalleFactura = new DetalleFactura();
                     detalleFactura.setFactura(factura);
@@ -352,11 +360,12 @@ public class OrdenService {
 
         // Mapear productos
         if (orden.getProductos() != null) {
-            dto.setProductos(orden.getProductos().stream().map(p -> {
+            dto.setProductos(orden.getProductos().stream().map(op -> {
                 OrdenProductoResponseDTO pDto = new OrdenProductoResponseDTO();
-                pDto.setIdProducto(p.getId());
-                pDto.setNombreProducto(p.getNombre());
-                pDto.setPrecio(p.getPrecio());
+                pDto.setIdProducto(op.getProducto().getId());
+                pDto.setNombreProducto(op.getProducto().getNombre());
+                pDto.setPrecio(op.getProducto().getPrecio());
+                pDto.setCantidad(op.getCantidad());
                 return pDto;
             }).collect(Collectors.toList()));
         }
