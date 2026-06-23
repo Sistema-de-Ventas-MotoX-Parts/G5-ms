@@ -1,34 +1,37 @@
 package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class MotocicletaRequestDTO {
 
-    @NotBlank(message = "La marca es obligatoria")
-    private String marca;
+    @NotNull(message = "La marca es obligatoria")
+    private Long idMarca;
 
-    @NotBlank(message = "El modelo es obligatorio")
-    private String modelo;
+    @NotNull(message = "El modelo es obligatorio")
+    private Long idModelo;
 
     @NotBlank(message = "La patente es obligatoria")
     private String patente;
 
+    private String dni;
+
     private Long idUsuario;
 
-    public String getMarca() {
-        return marca;
+    public Long getIdMarca() {
+        return idMarca;
     }
 
-    public void setMarca(String marca) {
-        this.marca = marca;
+    public void setIdMarca(Long idMarca) {
+        this.idMarca = idMarca;
     }
 
-    public String getModelo() {
-        return modelo;
+    public Long getIdModelo() {
+        return idModelo;
     }
 
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
+    public void setIdModelo(Long idModelo) {
+        this.idModelo = idModelo;
     }
 
     public String getPatente() {
@@ -37,6 +40,14 @@ public class MotocicletaRequestDTO {
 
     public void setPatente(String patente) {
         this.patente = patente;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
     }
 
     public Long getIdUsuario() {

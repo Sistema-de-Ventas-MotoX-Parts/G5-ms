@@ -10,11 +10,9 @@ public class Motocicleta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String marca;
-
-    @Column(nullable = false)
-    private String modelo;
+    @ManyToOne
+    @JoinColumn(name = "id_modelo", nullable = false)
+    private Modelo modelo;
 
     @Column(nullable = false, unique = true)
     private String patente;
@@ -22,6 +20,9 @@ public class Motocicleta {
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = true)
     private Usuario usuario;
+
+    @Column(nullable = true, unique = true)
+    private String dni;
 
     public Long getId() {
         return id;
@@ -32,18 +33,18 @@ public class Motocicleta {
     }
 
     public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
+        return modelo != null && modelo.getMarca() != null ? modelo.getMarca().getNombre() : null;
     }
 
     public String getModelo() {
+        return modelo != null ? modelo.getNombre() : null;
+    }
+
+    public Modelo getModeloEntity() {
         return modelo;
     }
 
-    public void setModelo(String modelo) {
+    public void setModeloEntity(Modelo modelo) {
         this.modelo = modelo;
     }
 
@@ -61,5 +62,13 @@ public class Motocicleta {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
     }
 }

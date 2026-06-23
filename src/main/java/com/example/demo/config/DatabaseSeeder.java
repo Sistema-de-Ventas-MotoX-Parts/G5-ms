@@ -4,9 +4,13 @@ import com.example.demo.model.NombreRol;
 import com.example.demo.model.Rol;
 import com.example.demo.model.Usuario;
 import com.example.demo.model.MetodoPago;
+import com.example.demo.model.Marca;
+import com.example.demo.model.Modelo;
 import com.example.demo.repository.RolRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.repository.MetodoPagoRepository;
+import com.example.demo.repository.MarcaRepository;
+import com.example.demo.repository.ModeloRepository;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -25,6 +29,12 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
     private MetodoPagoRepository metodoPagoRepository;
+
+    @Autowired
+    private MarcaRepository marcaRepository;
+
+    @Autowired
+    private ModeloRepository modeloRepository;
 
     @Override
     public void run(String... args) throws Exception {
@@ -69,6 +79,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         // Sembrar métodos de pago
         seedMetodoPago("EFECTIVO");
         seedMetodoPago("TRANSFERENCIA");
+
+        // Sembrar marcas y modelos
+        seedMarcasYModelos();
     }
 
     private Rol seedRol(NombreRol nombreRol) {
@@ -85,6 +98,45 @@ public class DatabaseSeeder implements CommandLineRunner {
             mp.setNombre(nombre);
             metodoPagoRepository.save(mp);
             System.out.println("Método de pago '" + nombre + "' creado exitosamente.");
+        }
+    }
+
+    private void seedMarcasYModelos() {
+        // Honda
+        Marca honda = seedMarca("HONDA");
+        seedModelo("CB 250 Twister", 2022, honda);
+        seedModelo("XR 150L", 2023, honda);
+        seedModelo("Tornado XR 250", 2021, honda);
+
+        // Yamaha
+        Marca yamaha = seedMarca("YAMAHA");
+        seedModelo("FZ 25", 2021, yamaha);
+        seedModelo("YBR 125 Z", 2022, yamaha);
+        seedModelo("Crypton 110", 2023, yamaha);
+
+        // Kawasaki
+        Marca kawasaki = seedMarca("KAWASAKI");
+        seedModelo("Ninja 400", 2023, kawasaki);
+        seedModelo("Z400", 2022, kawasaki);
+    }
+
+    private Marca seedMarca(String nombre) {
+        return marcaRepository.findByNombre(nombre)
+                .orElseGet(() -> {
+                    Marca m = new Marca(nombre);
+                    return marcaRepository.save(m);
+                });
+    }
+
+    private void seedModelo(String nombre, Integer anio, Marca marca) {
+        boolean existe = modeloRepository.findAll().stream()
+                .anyMatch(m -> m.getNombre().equalsIgnoreCase(nombre) && m.getMarca().getId().equals(marca.getId()) && m.getAnio().equals(anio));
+        if (!existe) {
+            Modelo m = new Modelo();
+            m.setNombre(nombre);
+            m.setAnio(anio);
+            m.setMarca(marca);
+            modeloRepository.save(m);
         }
     }
 }
