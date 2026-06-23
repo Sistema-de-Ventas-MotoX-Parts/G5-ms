@@ -30,7 +30,7 @@ public class ServicioService {
     }
 
     public List<ServicioResponseDTO> obtenerTodos() {
-        return servicioRepository.findAll().stream()
+        return servicioRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .filter(s -> Boolean.TRUE.equals(s.getActivo()))
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
