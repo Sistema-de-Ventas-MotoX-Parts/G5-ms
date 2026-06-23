@@ -1,5 +1,7 @@
 package com.example.demo.dto;
 
+import java.time.LocalDateTime;
+
 public class MotocicletaResponseDTO {
 
     private Long id;
@@ -13,6 +15,7 @@ public class MotocicletaResponseDTO {
     private String nombreUsuario;
     private String dniUsuario;
     private String dni;
+    private LocalDateTime fechaCreacion;
 
     public Long getId() {
         return id;
@@ -102,5 +105,13 @@ public class MotocicletaResponseDTO {
     public void setDni(String dni) {
         this.dni = dni;
         this.dniUsuario = dni;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 }

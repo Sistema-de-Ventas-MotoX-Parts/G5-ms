@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class MotocicletaService {
@@ -45,6 +46,7 @@ public class MotocicletaService {
         motocicleta.setPatente(requestDTO.getPatente());
         motocicleta.setDni(requestDTO.getDni());
         motocicleta.setActivo(true);
+        motocicleta.setFechaCreacion(LocalDateTime.now());
 
         Usuario usuario;
         if (requestDTO.getIdUsuario() != null) {
@@ -141,6 +143,7 @@ public class MotocicletaService {
         dto.setPatente(motocicleta.getPatente());
         dto.setDni(motocicleta.getDni());
         dto.setDniUsuario(motocicleta.getDni());
+        dto.setFechaCreacion(motocicleta.getFechaCreacion());
 
         if (motocicleta.getModeloEntity() != null) {
             dto.setIdModelo(motocicleta.getModeloEntity().getId());

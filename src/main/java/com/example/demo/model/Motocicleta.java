@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "motocicletas")
@@ -28,6 +29,9 @@ public class Motocicleta {
 
     @Column(nullable = true, unique = true)
     private String dni;
+
+    @Column(name = "fecha_creacion", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime fechaCreacion;
 
     public Long getId() {
         return id;
@@ -83,5 +87,13 @@ public class Motocicleta {
 
     public void setDni(String dni) {
         this.dni = dni;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 }
