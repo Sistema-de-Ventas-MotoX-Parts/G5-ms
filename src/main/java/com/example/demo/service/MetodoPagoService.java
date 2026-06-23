@@ -19,6 +19,7 @@ public class MetodoPagoService {
 
     public List<MetodoPagoDTO> findAll() {
         return metodoPagoRepository.findAll().stream()
+                .filter(m -> Boolean.TRUE.equals(m.getActivo()))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -32,6 +33,7 @@ public class MetodoPagoService {
     public MetodoPagoDTO save(MetodoPagoDTO metodoPagoDTO) {
         MetodoPago metodoPago = new MetodoPago();
         metodoPago.setNombre(metodoPagoDTO.getNombre());
+        metodoPago.setActivo(true);
         
         MetodoPago saved = metodoPagoRepository.save(metodoPago);
         return convertToDTO(saved);
@@ -48,7 +50,8 @@ public class MetodoPagoService {
     public void delete(Long id) {
         MetodoPago metodoPago = metodoPagoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
-        metodoPagoRepository.delete(metodoPago);
+        metodoPago.setActivo(false);
+        metodoPagoRepository.save(metodoPago);
     }
 
     private MetodoPagoDTO convertToDTO(MetodoPago metodoPago) {

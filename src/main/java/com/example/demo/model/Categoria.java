@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 
@@ -23,6 +24,11 @@ public class Categoria {
 	@Size(max = 50, message = "El nombre no puede exceder los 50 caracteres")
 	@Column(length = 50, nullable = false)
 	private String nombre;
+	
+	//Campo para desactivar categoria
+	@NotNull(message = "El estado del producto es obligatorio")
+	@Column(nullable = false)
+	private Boolean activo;
 
 	public Long getId() {
 		return id;
@@ -38,6 +44,14 @@ public class Categoria {
 
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
+	}
+
+	public Boolean getActivo() {
+		return activo;
+	}
+
+	public void setActivo(Boolean activo) {
+		this.activo = activo;
 	}
 
 

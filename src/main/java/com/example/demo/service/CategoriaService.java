@@ -16,12 +16,15 @@ public class CategoriaService {
 
 	//DAR DE ALTA
 	public Categoria guardarCategoria(Categoria categoria) {
+		categoria.setActivo(true);
 		return categoriaRepository.save(categoria);
 	}
 
 	//LISTAR
 	public List<Categoria> obtenerTodos(){
-		return categoriaRepository.findAll();
+		return categoriaRepository.findAll().stream()
+				.filter(c -> Boolean.TRUE.equals(c.getActivo()))
+				.collect(java.util.stream.Collectors.toList());
 	}
 
 	//OBTENER POR ID
@@ -39,6 +42,9 @@ public class CategoriaService {
 
 	//DAR DE BAJA
 	public void eliminarCategoria(Long id) {
-		categoriaRepository.deleteById(id);
+		Categoria categoria = categoriaRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+		categoria.setActivo(false);
+		categoriaRepository.save(categoria);
 	}
 }

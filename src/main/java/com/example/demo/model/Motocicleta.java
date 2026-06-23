@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "motocicletas")
@@ -22,6 +23,10 @@ public class Motocicleta {
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = true)
     private Usuario usuario;
+    
+    @NotNull(message = "El estado de la motocicleta es obligarotio")
+	@Column(nullable = false)
+	private Boolean activo;
 
     public Long getId() {
         return id;
@@ -61,5 +66,13 @@ public class Motocicleta {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
 }

@@ -26,8 +26,24 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Autowired
     private MetodoPagoRepository metodoPagoRepository;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     @Override
     public void run(String... args) throws Exception {
+        // 1. Asegurar que los registros antiguos tengan activo = true (1) para la Baja Lógica
+        try {
+            jdbcTemplate.execute("UPDATE usuarios SET activo = 1 WHERE activo = 0 OR activo IS NULL");
+            jdbcTemplate.execute("UPDATE productos SET activo = 1 WHERE activo = 0 OR activo IS NULL");
+            jdbcTemplate.execute("UPDATE categorias SET activo = 1 WHERE activo = 0 OR activo IS NULL");
+            jdbcTemplate.execute("UPDATE metodos_pago SET activo = 1 WHERE activo = 0 OR activo IS NULL");
+            jdbcTemplate.execute("UPDATE servicios SET activo = 1 WHERE activo = 0 OR activo IS NULL");
+            jdbcTemplate.execute("UPDATE motocicletas SET activo = 1 WHERE activo = 0 OR activo IS NULL");
+            System.out.println("Baja Lógica: Registros antiguos actualizados a activo = 1.");
+        } catch (Exception e) {
+            System.err.println("Aviso: No se pudieron actualizar los estados 'activo'. (Quizás falten tablas).");
+        }
+        
         // Sembrar roles si no existen
         Rol adminRol = seedRol(NombreRol.ADMIN);
         Rol userRol = seedRol(NombreRol.USER);
@@ -46,6 +62,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             String passwordEncriptado = BCrypt.hashpw("Admin123", BCrypt.gensalt());
             admin.setContrasenia(passwordEncriptado);
             admin.setRol(adminRol);
+            admin.setActivo(true);
             usuarioRepository.save(admin);
             System.out.println("Usuario ADMIN creado exitosamente (admin@admin / Admin123).");
         } else {
@@ -62,6 +79,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             String passwordEncriptado = BCrypt.hashpw("Consumidor123", BCrypt.gensalt());
             consumidor.setContrasenia(passwordEncriptado);
             consumidor.setRol(userRol);
+            consumidor.setActivo(true);
             usuarioRepository.save(consumidor);
             System.out.println("Usuario Consumidor Final creado exitosamente.");
         }

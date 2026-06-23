@@ -23,6 +23,7 @@ public class ServicioService {
         servicio.setNombre(requestDTO.getNombre());
         servicio.setDescripcion(requestDTO.getDescripcion());
         servicio.setPrecioBase(requestDTO.getPrecioBase());
+        servicio.setActivo(true);
         
         Servicio guardado = servicioRepository.save(servicio);
         return mapToResponseDTO(guardado);
@@ -30,6 +31,7 @@ public class ServicioService {
 
     public List<ServicioResponseDTO> obtenerTodos() {
         return servicioRepository.findAll().stream()
+                .filter(s -> Boolean.TRUE.equals(s.getActivo()))
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -55,7 +57,8 @@ public class ServicioService {
     public void eliminarServicio(Long id) {
         Servicio servicio = servicioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
-        servicioRepository.delete(servicio);
+        servicio.setActivo(false);
+        servicioRepository.save(servicio);
     }
 
     private ServicioResponseDTO mapToResponseDTO(Servicio servicio) {

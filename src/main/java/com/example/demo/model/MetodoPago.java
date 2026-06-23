@@ -20,6 +20,12 @@ public class MetodoPago {
     @Column(nullable = false, unique = true)
     private String nombre;
 
+    //Campo para desactivar Metodo de pago
+    @NotBlank(message = "El estado de metodos de pago es obligatorio")
+    @Column(nullable=false)
+    private Boolean activo;
+    
+    
     //Getter y Setter
     public Long getId() {
         return id;
@@ -36,4 +42,12 @@ public class MetodoPago {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
+	public Boolean getActivo() {
+		return activo;
+	}
+
+	public void setActivo(Boolean activo) {
+		this.activo = activo;
+	}
 }

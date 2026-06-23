@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "servicios")
@@ -18,6 +19,10 @@ public class Servicio {
 
     @Column(name = "precio_base", nullable = false)
     private Double precioBase;
+    
+    @NotNull(message = "El estado de servicios es obligatorio")
+	@Column(nullable = false)
+	private Boolean activo;
 
     public Long getId() {
         return id;
@@ -49,5 +54,13 @@ public class Servicio {
 
     public void setPrecioBase(Double precioBase) {
         this.precioBase = precioBase;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
 }

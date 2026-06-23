@@ -30,12 +30,15 @@ public class ProductoService {
 	// DAR DE ALTA
 	public Producto guardarProducto(Producto producto) {
 		validarCategoria(producto);
+		producto.setActivo(true);
 		return productoRepository.save(producto);
 	}
 
 	//LISTAR
 	public List<Producto> obtenerTodos(){
-		return productoRepository.findAll();
+		return productoRepository.findAll().stream()
+				.filter(p -> Boolean.TRUE.equals(p.getActivo()))
+				.collect(java.util.stream.Collectors.toList());
 	}
 	
 	//OBTENER POR ID
@@ -62,6 +65,8 @@ public class ProductoService {
 
 	//DAR DE BAJA
 	public void eliminarProducto(Long id) {
-		productoRepository.deleteById(id);
+		Producto producto = productoRepository.findById(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+		producto.setActivo(false);
+		productoRepository.save(producto);
 	}
 }

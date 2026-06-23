@@ -32,6 +32,7 @@ public class UsuarioService {
         Rol userRol = rolRepository.findByNombreRol(NombreRol.USER)
                 .orElseThrow(() -> new IllegalStateException("El rol USER no está inicializado."));
         usuario.setRol(userRol);
+        usuario.setActivo(true);
 
         return usuarioRepository.save(usuario);
     }
@@ -39,6 +40,10 @@ public class UsuarioService {
     public Usuario login(String email, String contrasenia) {
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Correo electrónico o contraseña incorrectos."));
+
+        if (Boolean.FALSE.equals(usuario.getActivo())) {
+            throw new IllegalArgumentException("Su cuenta ha sido desactivada. Por favor contacte al soporte.");
+        }
 
         if (!BCrypt.checkpw(contrasenia, usuario.getContrasenia())) {
             throw new IllegalArgumentException("Correo electrónico o contraseña incorrectos.");
@@ -71,6 +76,8 @@ public class UsuarioService {
                     .orElseThrow(() -> new IllegalArgumentException("El rol especificado no existe."));
             usuario.setRol(rolDb);
         }
+
+        usuario.setActivo(true);
 
         return usuarioRepository.save(usuario);
     }
@@ -138,11 +145,15 @@ public class UsuarioService {
     public void eliminarUsuario(Long id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
-        usuarioRepository.delete(usuario);
+        usuario.setActivo(false);
+        usuario.setEmail(usuario.getEmail() + "_eliminado_" + System.currentTimeMillis());
+        usuarioRepository.save(usuario);
     }
 
     public List<Usuario> obtenerTodos() {
-        return usuarioRepository.findAll();
+        return usuarioRepository.findAll().stream()
+                .filter(u -> Boolean.TRUE.equals(u.getActivo()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     public Usuario obtenerPorId(Long id) {

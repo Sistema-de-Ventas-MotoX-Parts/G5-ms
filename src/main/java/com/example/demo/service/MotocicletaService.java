@@ -28,6 +28,7 @@ public class MotocicletaService {
         motocicleta.setMarca(requestDTO.getMarca());
         motocicleta.setModelo(requestDTO.getModelo());
         motocicleta.setPatente(requestDTO.getPatente());
+        motocicleta.setActivo(true);
 
         if (requestDTO.getIdUsuario() != null) {
             Usuario usuario = usuarioRepository.findById(requestDTO.getIdUsuario())
@@ -46,6 +47,7 @@ public class MotocicletaService {
     //LISTAR
     public List<MotocicletaResponseDTO> obtenerTodas() {
         return motocicletaRepository.findAll().stream()
+                .filter(m -> Boolean.TRUE.equals(m.getActivo()))
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -56,6 +58,7 @@ public class MotocicletaService {
             throw new RuntimeException("Usuario no encontrado");
         }
         return motocicletaRepository.findByUsuarioId(idUsuario).stream()
+                .filter(m -> Boolean.TRUE.equals(m.getActivo()))
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -101,7 +104,8 @@ public class MotocicletaService {
     public void eliminarMotocicleta(Long id) {
         Motocicleta motocicleta = motocicletaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Motocicleta no encontrada"));
-        motocicletaRepository.delete(motocicleta);
+        motocicleta.setActivo(false);
+        motocicletaRepository.save(motocicleta);
     }
 
     // DTO DE RESPUESTA
