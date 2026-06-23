@@ -85,6 +85,12 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 *   **URL**: `http://localhost:8080/api/usuarios/perfil`
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
 
+#### 6. Obtener Historial de Productos Comprados (Autenticado)
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/usuarios/perfil/productos-comprados`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
+*   **Respuesta**: Lista en formato JSON detallando los productos adquiridos por el usuario, sus cantidades, subtotales y fecha de compra.
+
 ---
 
 ### B. Gestión de Categorías
