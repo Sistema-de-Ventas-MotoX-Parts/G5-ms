@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface FacturaRepository extends JpaRepository<Factura, Long> {
-    List<Factura> findByUsuarioId(Long usuarioId);
+    List<Factura> findByUsuarioIdOrderByIdDesc(Long usuarioId);
 }

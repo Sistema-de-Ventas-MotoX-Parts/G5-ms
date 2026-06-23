@@ -164,7 +164,7 @@ public class FacturaService {
     }
     
     public List<FacturaDTO> findAll() {
-        return facturaRepository.findAll().stream()
+        return facturaRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -176,13 +176,13 @@ public class FacturaService {
     }
 
     public List<FacturaDTO> findByUsuarioId(Long usuarioId) {
-        return facturaRepository.findByUsuarioId(usuarioId).stream()
+        return facturaRepository.findByUsuarioIdOrderByIdDesc(usuarioId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public List<com.example.demo.dto.ProductoCompradoDTO> obtenerProductosCompradosPorUsuario(Long usuarioId) {
-        List<Factura> facturas = facturaRepository.findByUsuarioId(usuarioId);
+        List<Factura> facturas = facturaRepository.findByUsuarioIdOrderByIdDesc(usuarioId);
         List<com.example.demo.dto.ProductoCompradoDTO> productosComprados = new ArrayList<>();
 
         for (Factura factura : facturas) {

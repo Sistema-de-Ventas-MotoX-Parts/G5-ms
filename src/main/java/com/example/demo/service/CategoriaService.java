@@ -22,7 +22,7 @@ public class CategoriaService {
 
 	//LISTAR
 	public List<Categoria> obtenerTodos(){
-		return categoriaRepository.findAll().stream()
+		return categoriaRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
 				.filter(c -> Boolean.TRUE.equals(c.getActivo()))
 				.collect(java.util.stream.Collectors.toList());
 	}

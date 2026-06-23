@@ -46,7 +46,7 @@ public class MotocicletaService {
 
     //LISTAR
     public List<MotocicletaResponseDTO> obtenerTodas() {
-        return motocicletaRepository.findAll().stream()
+        return motocicletaRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .filter(m -> Boolean.TRUE.equals(m.getActivo()))
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
@@ -57,7 +57,7 @@ public class MotocicletaService {
         if (!usuarioRepository.existsById(idUsuario)) {
             throw new RuntimeException("Usuario no encontrado");
         }
-        return motocicletaRepository.findByUsuarioId(idUsuario).stream()
+        return motocicletaRepository.findByUsuarioIdOrderByIdDesc(idUsuario).stream()
                 .filter(m -> Boolean.TRUE.equals(m.getActivo()))
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());

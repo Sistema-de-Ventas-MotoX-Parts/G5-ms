@@ -161,7 +161,7 @@ public class OrdenService {
     }
 
     public List<OrdenResponseDTO> obtenerTodas(Long idMecanico) {
-        return ordenRepository.findAll().stream()
+        return ordenRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .filter(o -> idMecanico == null || (o.getMecanico() != null && o.getMecanico().getId().equals(idMecanico)))
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());

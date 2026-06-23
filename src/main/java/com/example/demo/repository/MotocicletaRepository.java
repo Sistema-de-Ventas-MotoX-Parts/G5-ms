@@ -11,6 +11,6 @@ import java.util.List;
 
 @Repository
 public interface MotocicletaRepository extends JpaRepository<Motocicleta, Long> {
-    List<Motocicleta> findByUsuarioId(Long usuarioId);
+    List<Motocicleta> findByUsuarioIdOrderByIdDesc(Long usuarioId);
     Optional<Motocicleta> findByPatente(String patente);
 }

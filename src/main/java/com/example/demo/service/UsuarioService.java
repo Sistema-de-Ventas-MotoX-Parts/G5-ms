@@ -234,7 +234,7 @@ public class UsuarioService {
     }
 
     public List<Usuario> obtenerTodos() {
-        return usuarioRepository.findAll().stream()
+        return usuarioRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .filter(u -> Boolean.TRUE.equals(u.getActivo()))
                 .collect(java.util.stream.Collectors.toList());
     }

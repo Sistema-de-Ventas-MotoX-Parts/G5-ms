@@ -36,7 +36,7 @@ public class ProductoService {
 
 	//LISTAR
 	public List<Producto> obtenerTodos(){
-		return productoRepository.findAll().stream()
+		return productoRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
 				.filter(p -> Boolean.TRUE.equals(p.getActivo()))
 				.collect(java.util.stream.Collectors.toList());
 	}
