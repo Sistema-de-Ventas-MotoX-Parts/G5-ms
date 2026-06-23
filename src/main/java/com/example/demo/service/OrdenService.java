@@ -89,6 +89,7 @@ public class OrdenService {
 
         if (requestDTO.getEstado() == EstadoOrden.SERVICE_TERMINADO) {
             orden.setPin(generarPinAleatorio());
+            orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
         }
 
         orden.setEstado(requestDTO.getEstado());
@@ -198,15 +199,26 @@ public class OrdenService {
 
         // Si pasa a ENTREGADO, requiere validación del PIN
         if (requestDTO.getEstado() == EstadoOrden.ENTREGADO && orden.getEstado() != EstadoOrden.ENTREGADO) {
-            if (orden.getPin() == null || !orden.getPin().equals(requestDTO.getPin())) {
+            if (orden.getPin() == null || orden.getPin().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se ha generado un PIN de entrega para esta orden.");
+            }
+            if (orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ha expirado.");
+            }
+            if (!orden.getPin().equals(requestDTO.getPin())) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ingresado es incorrecto.");
             }
+            // Limpiar pin al entregar exitosamente
+            orden.setPin(null);
+            orden.setFechaExpiracionPin(null);
         }
 
-        // Si pasa a SERVICE_TERMINADO, generamos el PIN si no existe
+        // Si pasa a SERVICE_TERMINADO, generamos el PIN si no existe o si ya expiró
         if (requestDTO.getEstado() == EstadoOrden.SERVICE_TERMINADO) {
-            if (orden.getPin() == null || orden.getPin().isEmpty()) {
+            if (orden.getPin() == null || orden.getPin().isEmpty() || 
+                orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
                 orden.setPin(generarPinAleatorio());
+                orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
             }
         }
 
@@ -403,15 +415,26 @@ public class OrdenService {
 
         // Si pasa a ENTREGADO, requiere validación del PIN
         if (nuevoEstado == EstadoOrden.ENTREGADO) {
-            if (orden.getPin() == null || !orden.getPin().equals(pin)) {
+            if (orden.getPin() == null || orden.getPin().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se ha generado un PIN de entrega para esta orden.");
+            }
+            if (orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ha expirado.");
+            }
+            if (!orden.getPin().equals(pin)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ingresado es incorrecto.");
             }
+            // Limpiar pin al entregar exitosamente
+            orden.setPin(null);
+            orden.setFechaExpiracionPin(null);
         }
 
-        // Si pasa a SERVICE_TERMINADO, generamos el PIN si no existe
+        // Si pasa a SERVICE_TERMINADO, generamos el PIN si no existe o si ya expiró
         if (nuevoEstado == EstadoOrden.SERVICE_TERMINADO) {
-            if (orden.getPin() == null || orden.getPin().isEmpty()) {
+            if (orden.getPin() == null || orden.getPin().isEmpty() || 
+                orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
                 orden.setPin(generarPinAleatorio());
+                orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
             }
         }
 
@@ -471,6 +494,7 @@ public class OrdenService {
         dto.setEstado(orden.getEstado());
         dto.setNotas(orden.getNotas());
         dto.setPin(orden.getPin());
+        dto.setFechaExpiracionPin(orden.getFechaExpiracionPin());
 
         if (orden.getMecanico() != null) {
             dto.setIdMecanico(orden.getMecanico().getId());

@@ -20,6 +20,7 @@ public class OrdenResponseDTO {
     private Long idMecanico;
     private String nombreMecanico;
     private String pin;
+    private LocalDateTime fechaExpiracionPin;
 
     public Long getId() {
         return id;
@@ -133,5 +134,13 @@ public class OrdenResponseDTO {
 
     public void setPin(String pin) {
         this.pin = pin;
+    }
+
+    public LocalDateTime getFechaExpiracionPin() {
+        return fechaExpiracionPin;
+    }
+
+    public void setFechaExpiracionPin(LocalDateTime fechaExpiracionPin) {
+        this.fechaExpiracionPin = fechaExpiracionPin;
     }
 }
