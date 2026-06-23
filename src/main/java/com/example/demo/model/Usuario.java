@@ -56,6 +56,9 @@ public class Usuario {
 	
 	@Column(name = "fecha_baja") 
     private LocalDateTime fechaBaja; 
+
+    @jakarta.persistence.OneToOne(mappedBy = "usuario", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private Empleado empleado; 
 	
 
 	public LocalDateTime getFechaAlta() {
@@ -136,5 +139,13 @@ public class Usuario {
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
+    }
+
+    public Empleado getEmpleado() {
+        return empleado;
+    }
+
+    public void setEmpleado(Empleado empleado) {
+        this.empleado = empleado;
     }
 }

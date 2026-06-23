@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.model.NombreRol;
 import com.example.demo.model.Rol;
 import com.example.demo.model.Usuario;
+import com.example.demo.model.Empleado;
 import com.example.demo.repository.RolRepository;
 import com.example.demo.repository.UsuarioRepository;
 import com.example.demo.dto.PerfilActualizarDTO;
@@ -93,6 +94,14 @@ public class UsuarioService {
             usuario.setRol(rolDb);
         }
 
+        // Validar y asociar datos de empleado
+        if (usuario.getEmpleado() != null) {
+            if (usuario.getRol().getNombreRol() != NombreRol.MECHANIC && usuario.getRol().getNombreRol() != NombreRol.ADMIN) {
+                throw new IllegalArgumentException("Solo los usuarios con roles de empleado (MECHANIC, ADMIN) pueden tener detalles laborales.");
+            }
+            usuario.getEmpleado().setUsuario(usuario);
+        }
+
         usuario.setActivo(true);
         
         // Asignamos la fecha de creación
@@ -141,6 +150,29 @@ public class UsuarioService {
         // Actualización de la dirección si se envía
         if (usuarioActualizado.getDireccion() != null) {
             usuario.setDireccion(usuarioActualizado.getDireccion());
+        }
+
+        // Actualización o creación de los detalles de empleado
+        if (usuarioActualizado.getEmpleado() != null) {
+            if (usuario.getRol().getNombreRol() != NombreRol.MECHANIC && usuario.getRol().getNombreRol() != NombreRol.ADMIN) {
+                throw new IllegalArgumentException("Solo los usuarios con roles de empleado (MECHANIC, ADMIN) pueden tener detalles laborales.");
+            }
+            if (usuario.getEmpleado() != null) {
+                Empleado emp = usuario.getEmpleado();
+                emp.setSueldo(usuarioActualizado.getEmpleado().getSueldo());
+                emp.setDiasTrabajo(usuarioActualizado.getEmpleado().getDiasTrabajo());
+                emp.setHorarioTrabajo(usuarioActualizado.getEmpleado().getHorarioTrabajo());
+                emp.setDiasLibres(usuarioActualizado.getEmpleado().getDiasLibres());
+            } else {
+                Empleado emp = usuarioActualizado.getEmpleado();
+                emp.setUsuario(usuario);
+                usuario.setEmpleado(emp);
+            }
+        } else {
+            // Si se cambió el rol a un rol no-empleado, se eliminan los datos laborales
+            if (usuario.getRol().getNombreRol() != NombreRol.MECHANIC && usuario.getRol().getNombreRol() != NombreRol.ADMIN) {
+                usuario.setEmpleado(null);
+            }
         }
 
         return usuarioRepository.save(usuario);
