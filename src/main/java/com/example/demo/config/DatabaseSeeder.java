@@ -64,7 +64,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             Usuario admin = new Usuario();
             admin.setNombre("Administrador");
             admin.setEmail(adminEmail);
-            // Encriptar contraseña usando BCrypt (coincidiendo con la lógica hashpw de UsuarioService)
+            // Encriptar contraseña usando BCrypt (coincidiendo con la lógica hashpw de
+            // UsuarioService)
             String passwordEncriptado = BCrypt.hashpw("Admin123", BCrypt.gensalt());
             admin.setContrasenia(passwordEncriptado);
             admin.setRol(adminRol);

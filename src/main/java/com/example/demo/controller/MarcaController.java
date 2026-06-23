@@ -1,0 +1,55 @@
+package com.example.demo.controller;
+
+import com.example.demo.dto.MarcaRequestDTO;
+import com.example.demo.dto.MarcaResponseDTO;
+import com.example.demo.service.MarcaService;
+import com.example.demo.security.JwtUtil;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/marcas")
+@CrossOrigin(origins = "*")
+public class MarcaController {
+
+    private final MarcaService marcaService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    public MarcaController(MarcaService marcaService) {
+        this.marcaService = marcaService;
+    }
+
+    @PostMapping
+    public ResponseEntity<MarcaResponseDTO> crear(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @Valid @RequestBody MarcaRequestDTO requestDTO) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        MarcaResponseDTO response = marcaService.crearMarca(requestDTO);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<MarcaResponseDTO>> obtenerTodas(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        return ResponseEntity.ok(marcaService.obtenerTodas());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MarcaResponseDTO> obtenerPorId(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        return ResponseEntity.ok(marcaService.obtenerPorId(id));
+    }
+}
