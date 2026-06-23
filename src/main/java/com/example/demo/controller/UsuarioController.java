@@ -54,6 +54,9 @@ public class UsuarioController {
     // ENDPOINTS DE PERFIL (Para el usuario logueado)
     // ==========================================
 
+    @Autowired
+    private com.example.demo.service.FacturaService facturaService;
+
     @GetMapping("/perfil")
     public ResponseEntity<?> obtenerMiPerfil(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
@@ -61,6 +64,15 @@ public class UsuarioController {
         Usuario usuario = getAuthenticatedUser(tokenHeader, cookieToken);
         usuario.setContrasenia(null);
         return ResponseEntity.ok(usuario);
+    }
+
+    @GetMapping("/perfil/productos-comprados")
+    public ResponseEntity<java.util.List<com.example.demo.dto.ProductoCompradoDTO>> obtenerMisProductosComprados(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken) {
+        Usuario usuarioLogueado = getAuthenticatedUser(tokenHeader, cookieToken);
+        java.util.List<com.example.demo.dto.ProductoCompradoDTO> historial = facturaService.obtenerProductosCompradosPorUsuario(usuarioLogueado.getId());
+        return ResponseEntity.ok(historial);
     }
 
     @PutMapping("/perfil")

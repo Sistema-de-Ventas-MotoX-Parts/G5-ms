@@ -155,6 +155,32 @@ public class FacturaService {
                 .collect(Collectors.toList());
     }
 
+    public List<com.example.demo.dto.ProductoCompradoDTO> obtenerProductosCompradosPorUsuario(Long usuarioId) {
+        List<Factura> facturas = facturaRepository.findByUsuarioId(usuarioId);
+        List<com.example.demo.dto.ProductoCompradoDTO> productosComprados = new ArrayList<>();
+
+        for (Factura factura : facturas) {
+            if (factura.getEstado() != EstadoFactura.CANCELADA) {
+                if (factura.getDetalles() != null) {
+                    for (DetalleFactura detalle : factura.getDetalles()) {
+                        com.example.demo.dto.ProductoCompradoDTO dto = new com.example.demo.dto.ProductoCompradoDTO();
+                        dto.setIdFactura(factura.getId());
+                        dto.setIdProducto(detalle.getProducto().getId());
+                        dto.setNombreProducto(detalle.getProducto().getNombre());
+                        dto.setFechaCompra(factura.getFecha());
+                        dto.setCantidad(detalle.getCantidad());
+                        dto.setPrecioUnitario(detalle.getPrecioUnitario());
+                        dto.setSubtotal(detalle.getSubtotal());
+                        productosComprados.add(dto);
+                    }
+                }
+            }
+        }
+        
+        productosComprados.sort((p1, p2) -> p2.getFechaCompra().compareTo(p1.getFechaCompra()));
+        return productosComprados;
+    }
+
     @Transactional
     public FacturaDTO actualizarEstado(Long id, String nuevoEstadoStr) {
         Factura factura = facturaRepository.findById(id)
