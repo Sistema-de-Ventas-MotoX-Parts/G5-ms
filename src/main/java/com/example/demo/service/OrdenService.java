@@ -53,13 +53,13 @@ public class OrdenService {
     public OrdenResponseDTO crearOrden(OrdenRequestDTO requestDTO) {
         // 1. Validar motocicleta
         Motocicleta motocicleta = motocicletaRepository.findById(requestDTO.getIdMoto())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Motocicleta no encontrada con id: " + requestDTO.getIdMoto()));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Motocicleta no encontrada"));
 
         // 2. Determinar el cliente (usuario)
         Usuario usuario = null;
         if (requestDTO.getIdUsuario() != null) {
             usuario = usuarioRepository.findById(requestDTO.getIdUsuario())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + requestDTO.getIdUsuario()));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
         } else if (motocicleta.getUsuario() != null) {
             usuario = motocicleta.getUsuario();
         } else {
@@ -71,7 +71,7 @@ public class OrdenService {
         MetodoPago metodoPago = null;
         if (requestDTO.getIdMetodoPago() != null) {
             metodoPago = metodoPagoRepository.findById(requestDTO.getIdMetodoPago())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado con id: " + requestDTO.getIdMetodoPago()));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
         } else {
             metodoPago = metodoPagoRepository.findByNombre("EFECTIVO")
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se especificó método de pago y el método por defecto 'EFECTIVO' no fue encontrado."));
@@ -104,7 +104,7 @@ public class OrdenService {
         if (requestDTO.getServicios() != null) {
             for (OrdenServicioRequestDTO servReq : requestDTO.getServicios()) {
                 Servicio servicio = servicioRepository.findById(servReq.getIdServicio())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Servicio no encontrado con id: " + servReq.getIdServicio()));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Servicio no encontrado"));
 
                 OrdenServicio ordenServicio = new OrdenServicio();
                 ordenServicio.setOrden(ordenGuardada);
@@ -266,7 +266,7 @@ public class OrdenService {
             if (requestDTO.getProductos() != null) {
                 for (OrdenProductoRequestDTO prodReq : requestDTO.getProductos()) {
                     Producto producto = productoRepository.findById(prodReq.getIdProducto())
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado con id: " + prodReq.getIdProducto()));
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
 
                     int cantidad = prodReq.getCantidad() != null ? prodReq.getCantidad() : 1;
 
@@ -302,7 +302,7 @@ public class OrdenService {
             // Si se envió un nuevo método de pago
             if (requestDTO.getIdMetodoPago() != null) {
                 MetodoPago metodoPago = metodoPagoRepository.findById(requestDTO.getIdMetodoPago())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado con id: " + requestDTO.getIdMetodoPago()));
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Método de pago no encontrado"));
                 factura.setMetodoPago(metodoPago);
             }
 
@@ -314,9 +314,26 @@ public class OrdenService {
     }
 
     @Transactional
+    public OrdenResponseDTO actualizarEstado(Long id, String nuevoEstadoStr) {
+        Orden orden = ordenRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
+
+        EstadoOrden nuevoEstado;
+        try {
+            nuevoEstado = EstadoOrden.valueOf(nuevoEstadoStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado de orden no válido: " + nuevoEstadoStr);
+        }
+
+        orden.setEstado(nuevoEstado);
+        Orden saved = ordenRepository.save(orden);
+        return convertToResponseDTO(saved);
+    }
+
+    @Transactional
     public void eliminarOrden(Long id) {
         Orden orden = ordenRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada con id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
 
         // Si se elimina la orden, devolvemos el stock de los productos asociados a la factura PENDIENTE si existe
         List<Factura> facturasAsociadas = facturaRepository.findAll().stream()

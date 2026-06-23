@@ -399,13 +399,19 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 *   **URL**: `http://localhost:8080/api/ordenes/1`
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>`
 
-#### 4. Editar Orden
+#### 4. Editar Orden (Completa)
 *   **Método**: `PUT`
 *   **URL**: `http://localhost:8080/api/ordenes/1`
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>`
 *   **Body (JSON)**: Igual que al crear.
 
-#### 5. Eliminar Orden
+#### 5. Actualizar Estado de Orden
+*   **Método**: `PATCH`
+*   **URL**: `http://localhost:8080/api/ordenes/1/estado?estado=MOTO_LISTA`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>`
+*   **Parámetro (URL)**: `estado` (ej. `MOTO_INGRESADA`, `MOTO_EN_REPARACION`, `MOTO_LISTA`, `ENTREGADA`).
+
+#### 6. Eliminar Orden
 *   **Método**: `DELETE`
 *   **URL**: `http://localhost:8080/api/ordenes/1`
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>`

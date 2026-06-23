@@ -60,6 +60,16 @@ public class OrdenController {
         return ResponseEntity.ok(ordenService.actualizarOrden(id, requestDTO));
     }
 
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<OrdenResponseDTO> actualizarEstado(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id,
+            @RequestParam String estado) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        return ResponseEntity.ok(ordenService.actualizarEstado(id, estado));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarOrden(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
