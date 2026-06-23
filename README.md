@@ -45,7 +45,8 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 {
   "nombre": "Juan Pérez",
   "email": "juan.perez@example.com",
-  "contrasenia": "claveSegura123"
+  "contrasenia": "claveSegura123",
+  "direccion": "Av. Siempreviva 742"
 }
 ```
 
@@ -75,10 +76,12 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 {
   "nombre": "Juan Pérez Editado",
   "contraseniaActual": "claveSegura123",
-  "nuevaContrasenia": "nuevaClave456"
+  "nuevaContrasenia": "nuevaClave456",
+  "direccion": "Av. Siempreviva 742 (Modificada)",
+  "imagenUrl": "https://res.cloudinary.com/dummy/image/upload/v1/ejemplo.jpg"
 }
 ```
-*Nota: Solo el nombre es modificable sin requerir contraseñas. Si se envía `nuevaContrasenia`, `contraseniaActual` es obligatoria para validar el cambio.*
+*Nota: Solo el nombre, la dirección y la imagen son modificables sin requerir contraseñas. Si se envía `nuevaContrasenia`, `contraseniaActual` es obligatoria para validar el cambio.*
 
 #### 5. Eliminar Mi Perfil (Autenticado)
 *   **Método**: `DELETE`
@@ -90,6 +93,29 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 *   **URL**: `http://localhost:8080/api/usuarios/perfil/productos-comprados`
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
 *   **Respuesta**: Lista en formato JSON detallando los productos adquiridos por el usuario, sus cantidades, subtotales y fecha de compra.
+
+#### 7. Listar todos los Mecánicos Activos (Admin)
+*   **Método**: `GET`
+*   **URL**: `http://localhost:8080/api/auth/usuarios/mecanicos`
+*   **Headers**: `Authorization: Bearer <TU_TOKEN>` (o mediante cookie `token_jwt`)
+*   **Respuesta**: Lista de todos los usuarios activos que poseen el rol `MECHANIC` (incluyendo su información laboral como sueldo y horarios).
+*   **Crear mecánico (Ejemplo de payload para Admin en POST /api/auth/usuarios)**:
+```json
+{
+  "nombre": "Juan Mecánico",
+  "email": "juan@mecanico.com",
+  "contrasenia": "mecanico123",
+  "rol": {
+    "nombreRol": "MECHANIC"
+  },
+  "empleado": {
+    "sueldo": 250000.0,
+    "diasTrabajo": "Lunes a Viernes",
+    "horarioTrabajo": "08:00 a 17:00",
+    "diasLibres": "Sábado y Domingo"
+  }
+}
+```
 
 ---
 
@@ -379,6 +405,9 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
   "telefonoContacto": "1122334455",
   "estado": "MOTO_INGRESADA",
   "notas": "Mantenimiento general",
+  "idMecanico": 3,
+  "idUsuario": 1,
+  "idMetodoPago": 1,
   "servicios": [
     { "idServicio": 1 }
   ],
@@ -387,11 +416,11 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
   ]
 }
 ```
-*Nota: Al crear una orden, el sistema generará automáticamente una Factura pendiente y descontará el stock de los productos.*
+*Nota: Al crear una orden, el sistema descuenta el stock de los productos para reservarlos. La factura se generará de manera automática y diferida en estado PENDIENTE cuando el estado de la orden sea cambiado a `SERVICE_TERMINADO`.*
 
 #### 2. Listar todas las Órdenes
 *   **Método**: `GET`
-*   **URL**: `http://localhost:8080/api/ordenes`
+*   **URL**: `http://localhost:8080/api/ordenes` (o filtrar por mecánico: `http://localhost:8080/api/ordenes?idMecanico=3`)
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>`
 
 #### 3. Obtener Orden por ID
@@ -410,6 +439,7 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 *   **URL**: `http://localhost:8080/api/ordenes/1/estado?estado=SERVICE_TERMINADO`
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>`
 *   **Parámetro (URL)**: `estado` (ej. `MOTO_INGRESADA`, `REALIZANDOSE_SERVICE`, `SERVICE_TERMINADO`).
+*Nota: Al cambiar el estado a `SERVICE_TERMINADO`, si aún no se había generado la factura de esta orden, el sistema la creará automáticamente en estado PENDIENTE recopilando los productos y servicios finales.*
 
 #### 6. Eliminar Orden
 *   **Método**: `DELETE`
