@@ -61,4 +61,25 @@ public class ModeloController {
         jwtUtil.validarAdmin(tokenHeader, cookieToken);
         return ResponseEntity.ok(modeloService.obtenerPorId(id));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ModeloResponseDTO> actualizar(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id,
+            @Valid @RequestBody ModeloRequestDTO requestDTO) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        ModeloResponseDTO response = modeloService.actualizarModelo(id, requestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        modeloService.eliminarModelo(id);
+        return ResponseEntity.noContent().build();
+    }
 }

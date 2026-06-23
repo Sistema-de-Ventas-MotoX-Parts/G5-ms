@@ -2,6 +2,8 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "marcas")
@@ -14,6 +16,9 @@ public class Marca {
     @NotBlank(message = "El nombre de la marca es obligatorio")
     @Column(nullable = false, unique = true)
     private String nombre;
+
+    @OneToMany(mappedBy = "marca", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Modelo> modelos = new ArrayList<>();
 
     public Marca() {}
 
@@ -35,5 +40,13 @@ public class Marca {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public List<Modelo> getModelos() {
+        return modelos;
+    }
+
+    public void setModelos(List<Modelo> modelos) {
+        this.modelos = modelos;
     }
 }

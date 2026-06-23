@@ -41,6 +41,27 @@ public class MarcaService {
         return mapToResponseDTO(marca);
     }
 
+    public MarcaResponseDTO actualizarMarca(Long id, MarcaRequestDTO requestDTO) {
+        Marca marca = marcaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Marca no encontrada con id: " + id));
+
+        marcaRepository.findByNombre(requestDTO.getNombre()).ifPresent(existente -> {
+            if (!existente.getId().equals(id)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La marca con nombre " + requestDTO.getNombre() + " ya existe.");
+            }
+        });
+
+        marca.setNombre(requestDTO.getNombre());
+        Marca actualizada = marcaRepository.save(marca);
+        return mapToResponseDTO(actualizada);
+    }
+
+    public void eliminarMarca(Long id) {
+        Marca marca = marcaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Marca no encontrada con id: " + id));
+        marcaRepository.delete(marca);
+    }
+
     private MarcaResponseDTO mapToResponseDTO(Marca marca) {
         MarcaResponseDTO dto = new MarcaResponseDTO();
         dto.setId(marca.getId());

@@ -52,4 +52,25 @@ public class MarcaController {
         jwtUtil.validarAdmin(tokenHeader, cookieToken);
         return ResponseEntity.ok(marcaService.obtenerPorId(id));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MarcaResponseDTO> actualizar(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id,
+            @Valid @RequestBody MarcaRequestDTO requestDTO) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        MarcaResponseDTO response = marcaService.actualizarMarca(id, requestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken,
+            @PathVariable Long id) {
+        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        marcaService.eliminarMarca(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -3,6 +3,8 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "modelos")
@@ -24,6 +26,9 @@ public class Modelo {
     @ManyToOne
     @JoinColumn(name = "id_marca", nullable = false)
     private Marca marca;
+
+    @OneToMany(mappedBy = "modelo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Motocicleta> motocicletas = new ArrayList<>();
 
     public Modelo() {}
 
@@ -57,5 +62,13 @@ public class Modelo {
 
     public void setMarca(Marca marca) {
         this.marca = marca;
+    }
+
+    public List<Motocicleta> getMotocicletas() {
+        return motocicletas;
+    }
+
+    public void setMotocicletas(List<Motocicleta> motocicletas) {
+        this.motocicletas = motocicletas;
     }
 }

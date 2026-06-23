@@ -58,6 +58,27 @@ public class ModeloService {
         return mapToResponseDTO(modelo);
     }
 
+    public ModeloResponseDTO actualizarModelo(Long id, ModeloRequestDTO requestDTO) {
+        Modelo modelo = modeloRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modelo no encontrado con id: " + id));
+
+        Marca marca = marcaRepository.findById(requestDTO.getIdMarca())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Marca no encontrada con id: " + requestDTO.getIdMarca()));
+
+        modelo.setNombre(requestDTO.getNombre());
+        modelo.setAnio(requestDTO.getAnio());
+        modelo.setMarca(marca);
+
+        Modelo actualizado = modeloRepository.save(modelo);
+        return mapToResponseDTO(actualizado);
+    }
+
+    public void eliminarModelo(Long id) {
+        Modelo modelo = modeloRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Modelo no encontrado con id: " + id));
+        modeloRepository.delete(modelo);
+    }
+
     private ModeloResponseDTO mapToResponseDTO(Modelo modelo) {
         ModeloResponseDTO dto = new ModeloResponseDTO();
         dto.setId(modelo.getId());
