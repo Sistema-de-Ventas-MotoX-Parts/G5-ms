@@ -407,9 +407,9 @@ A continuación se detallan todas las solicitudes disponibles con sus respectivo
 
 #### 5. Actualizar Estado de Orden
 *   **Método**: `PATCH`
-*   **URL**: `http://localhost:8080/api/ordenes/1/estado?estado=MOTO_LISTA`
+*   **URL**: `http://localhost:8080/api/ordenes/1/estado?estado=SERVICE_TERMINADO`
 *   **Headers**: `Authorization: Bearer <TU_TOKEN>`
-*   **Parámetro (URL)**: `estado` (ej. `MOTO_INGRESADA`, `MOTO_EN_REPARACION`, `MOTO_LISTA`, `ENTREGADA`).
+*   **Parámetro (URL)**: `estado` (ej. `MOTO_INGRESADA`, `REALIZANDOSE_SERVICE`, `SERVICE_TERMINADO`).
 
 #### 6. Eliminar Orden
 *   **Método**: `DELETE`
