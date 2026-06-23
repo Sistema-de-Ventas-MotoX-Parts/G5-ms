@@ -66,9 +66,10 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
-            @RequestParam String estado) {
+            @RequestParam String estado,
+            @RequestParam(required = false) String pin) {
         jwtUtil.validarAdmin(tokenHeader, cookieToken);
-        return ResponseEntity.ok(ordenService.actualizarEstado(id, estado));
+        return ResponseEntity.ok(ordenService.actualizarEstado(id, estado, pin));
     }
 
     @DeleteMapping("/{id}")

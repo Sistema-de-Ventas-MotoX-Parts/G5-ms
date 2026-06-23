@@ -40,6 +40,9 @@ public class Orden {
     @Column(name = "telefono_contacto")
     private String telefonoContacto;
 
+    @Column(name = "pin")
+    private String pin;
+
     @NotNull(message = "El estado es obligatorio")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -164,5 +167,13 @@ public class Orden {
 
     public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 }

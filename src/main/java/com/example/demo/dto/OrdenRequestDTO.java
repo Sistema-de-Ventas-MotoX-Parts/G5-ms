@@ -25,6 +25,7 @@ public class OrdenRequestDTO {
     private List<OrdenProductoRequestDTO> productos;
 
     private Long idMecanico;
+    private String pin;
 
     public Long getIdMoto() {
         return idMoto;
@@ -96,5 +97,13 @@ public class OrdenRequestDTO {
 
     public void setIdMecanico(Long idMecanico) {
         this.idMecanico = idMecanico;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 }

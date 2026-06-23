@@ -19,6 +19,7 @@ public class OrdenResponseDTO {
     private List<FacturaDTO> facturas;
     private Long idMecanico;
     private String nombreMecanico;
+    private String pin;
 
     public Long getId() {
         return id;
@@ -124,5 +125,13 @@ public class OrdenResponseDTO {
 
     public void setNombreMecanico(String nombreMecanico) {
         this.nombreMecanico = nombreMecanico;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
     }
 }
