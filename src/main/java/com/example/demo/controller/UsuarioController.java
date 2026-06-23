@@ -16,7 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 public class UsuarioController {
 
     @Autowired
@@ -65,6 +65,10 @@ public class UsuarioController {
         usuario.setContrasenia(null);
         return ResponseEntity.ok(usuario);
     }
+    
+    /**
+     * Obtiene los prductos del usuario
+     */
 
     @GetMapping("/perfil/productos-comprados")
     public ResponseEntity<java.util.List<com.example.demo.dto.ProductoCompradoDTO>> obtenerMisProductosComprados(
@@ -74,6 +78,10 @@ public class UsuarioController {
         java.util.List<com.example.demo.dto.ProductoCompradoDTO> historial = facturaService.obtenerProductosCompradosPorUsuario(usuarioLogueado.getId());
         return ResponseEntity.ok(historial);
     }
+    
+    /**
+     * Actualiza nombre y contraseña del usuario
+     */
 
     @PutMapping("/perfil")
     public ResponseEntity<?> actualizarMiPerfil(
@@ -92,6 +100,10 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body(error);
         }
     }
+    
+    /**
+     * Desabilita el perfil
+     */
 
     @DeleteMapping("/perfil")
     public ResponseEntity<?> eliminarMiPerfil(

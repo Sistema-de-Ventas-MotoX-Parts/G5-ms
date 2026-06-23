@@ -15,7 +15,7 @@ import com.example.demo.model.Usuario;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api/facturas")
 public class FacturaController {
 
