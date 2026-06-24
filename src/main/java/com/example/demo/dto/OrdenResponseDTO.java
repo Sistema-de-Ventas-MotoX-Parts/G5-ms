@@ -19,6 +19,9 @@ public class OrdenResponseDTO {
     private List<FacturaDTO> facturas;
     private Long idMecanico;
     private String nombreMecanico;
+    private String pin;
+    private LocalDateTime fechaExpiracionPin;
+    private String whatsappUrl;
 
     public Long getId() {
         return id;
@@ -124,5 +127,29 @@ public class OrdenResponseDTO {
 
     public void setNombreMecanico(String nombreMecanico) {
         this.nombreMecanico = nombreMecanico;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
+    public LocalDateTime getFechaExpiracionPin() {
+        return fechaExpiracionPin;
+    }
+
+    public void setFechaExpiracionPin(LocalDateTime fechaExpiracionPin) {
+        this.fechaExpiracionPin = fechaExpiracionPin;
+    }
+
+    public String getWhatsappUrl() {
+        return whatsappUrl;
+    }
+
+    public void setWhatsappUrl(String whatsappUrl) {
+        this.whatsappUrl = whatsappUrl;
     }
 }

@@ -82,6 +82,16 @@ public class OrdenService {
         orden.setMotocicleta(motocicleta);
         orden.setFechaIngreso(LocalDateTime.now());
         orden.setTelefonoContacto(requestDTO.getTelefonoContacto());
+
+        if (requestDTO.getEstado() == EstadoOrden.ENTREGADO) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede crear una orden directamente en estado ENTREGADO.");
+        }
+
+        if (requestDTO.getEstado() == EstadoOrden.SERVICE_TERMINADO) {
+            orden.setPin(generarPinAleatorio());
+            orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
+        }
+
         orden.setEstado(requestDTO.getEstado());
         orden.setNotas(requestDTO.getNotas());
         orden.setCliente(usuario);
@@ -186,6 +196,32 @@ public class OrdenService {
         }
 
         orden.setTelefonoContacto(requestDTO.getTelefonoContacto());
+
+        // Si pasa a ENTREGADO, requiere validación del PIN
+        if (requestDTO.getEstado() == EstadoOrden.ENTREGADO && orden.getEstado() != EstadoOrden.ENTREGADO) {
+            if (orden.getPin() == null || orden.getPin().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se ha generado un PIN de entrega para esta orden.");
+            }
+            if (orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ha expirado.");
+            }
+            if (!orden.getPin().equals(requestDTO.getPin())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ingresado es incorrecto.");
+            }
+            // Limpiar pin al entregar exitosamente
+            orden.setPin(null);
+            orden.setFechaExpiracionPin(null);
+        }
+
+        // Si pasa a SERVICE_TERMINADO, generamos el PIN si no existe o si ya expiró
+        if (requestDTO.getEstado() == EstadoOrden.SERVICE_TERMINADO) {
+            if (orden.getPin() == null || orden.getPin().isEmpty() || 
+                orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
+                orden.setPin(generarPinAleatorio());
+                orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
+            }
+        }
+
         orden.setEstado(requestDTO.getEstado());
         orden.setNotas(requestDTO.getNotas());
 
@@ -366,7 +402,7 @@ public class OrdenService {
     }
 
     @Transactional
-    public OrdenResponseDTO actualizarEstado(Long id, String nuevoEstadoStr) {
+    public OrdenResponseDTO actualizarEstado(Long id, String nuevoEstadoStr, String pin) {
         Orden orden = ordenRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
 
@@ -375,6 +411,31 @@ public class OrdenService {
             nuevoEstado = EstadoOrden.valueOf(nuevoEstadoStr.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado de orden no válido: " + nuevoEstadoStr);
+        }
+
+        // Si pasa a ENTREGADO, requiere validación del PIN
+        if (nuevoEstado == EstadoOrden.ENTREGADO) {
+            if (orden.getPin() == null || orden.getPin().isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se ha generado un PIN de entrega para esta orden.");
+            }
+            if (orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ha expirado.");
+            }
+            if (!orden.getPin().equals(pin)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El PIN ingresado es incorrecto.");
+            }
+            // Limpiar pin al entregar exitosamente
+            orden.setPin(null);
+            orden.setFechaExpiracionPin(null);
+        }
+
+        // Si pasa a SERVICE_TERMINADO, generamos el PIN si no existe o si ya expiró
+        if (nuevoEstado == EstadoOrden.SERVICE_TERMINADO) {
+            if (orden.getPin() == null || orden.getPin().isEmpty() || 
+                orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
+                orden.setPin(generarPinAleatorio());
+                orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
+            }
         }
 
         orden.setEstado(nuevoEstado);
@@ -432,6 +493,19 @@ public class OrdenService {
         dto.setTelefonoContacto(orden.getTelefonoContacto());
         dto.setEstado(orden.getEstado());
         dto.setNotas(orden.getNotas());
+        dto.setPin(orden.getPin());
+        dto.setFechaExpiracionPin(orden.getFechaExpiracionPin());
+
+        if (orden.getPin() != null && orden.getTelefonoContacto() != null) {
+            String cleanedPhone = orden.getTelefonoContacto().replaceAll("[^0-9]", "");
+            String mensaje = "¡Hola! Tu motocicleta está lista para retirar en el taller. Tu PIN de seguridad es: " + orden.getPin() + ". Recuerda que este PIN expira en 15 minutos.";
+            try {
+                String encodedMsg = java.net.URLEncoder.encode(mensaje, "UTF-8").replace("+", "%20");
+                dto.setWhatsappUrl("https://wa.me/" + cleanedPhone + "?text=" + encodedMsg);
+            } catch (java.io.UnsupportedEncodingException e) {
+                dto.setWhatsappUrl("https://wa.me/" + cleanedPhone);
+            }
+        }
 
         if (orden.getMecanico() != null) {
             dto.setIdMecanico(orden.getMecanico().getId());
@@ -581,5 +655,27 @@ public class OrdenService {
         factura.setTotal(total);
 
         facturaRepository.save(factura);
+    }
+
+    @Transactional
+    public OrdenResponseDTO reenviarPin(Long id) {
+        Orden orden = ordenRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada"));
+
+        if (orden.getEstado() != EstadoOrden.SERVICE_TERMINADO) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se puede enviar un PIN para una orden que no está en estado SERVICE_TERMINADO.");
+        }
+
+        orden.setPin(generarPinAleatorio());
+        orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
+        Orden saved = ordenRepository.save(orden);
+
+        return convertToResponseDTO(saved);
+    }
+
+    private String generarPinAleatorio() {
+        java.util.Random random = new java.util.Random();
+        int number = 100000 + random.nextInt(900000); // 6-digit PIN
+        return String.valueOf(number);
     }
 }
