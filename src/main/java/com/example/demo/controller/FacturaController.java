@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.repository.UsuarioRepository;
+import com.example.demo.model.NombreRol;
 import com.example.demo.model.Usuario;
 
 import java.util.List;
@@ -94,7 +95,7 @@ public class FacturaController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @RequestParam String estado) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         FacturaDTO updated = facturaService.actualizarEstado(id, estado);
         return ResponseEntity.ok(updated);
     }

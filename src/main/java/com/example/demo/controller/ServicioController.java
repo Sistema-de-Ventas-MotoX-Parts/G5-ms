@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ServicioRequestDTO;
 import com.example.demo.dto.ServicioResponseDTO;
+import com.example.demo.model.NombreRol;
 import com.example.demo.service.ServicioService;
 import com.example.demo.security.JwtUtil;
 import jakarta.validation.Valid;
@@ -31,7 +32,7 @@ public class ServicioController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody ServicioRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         ServicioResponseDTO response = servicioService.crearServicio(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -40,7 +41,7 @@ public class ServicioController {
     public ResponseEntity<List<ServicioResponseDTO>> obtenerTodos(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         return ResponseEntity.ok(servicioService.obtenerTodos());
     }
 
@@ -49,7 +50,7 @@ public class ServicioController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         return ResponseEntity.ok(servicioService.obtenerPorId(id));
     }
 
@@ -59,7 +60,7 @@ public class ServicioController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @Valid @RequestBody ServicioRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         return ResponseEntity.ok(servicioService.actualizarServicio(id, requestDTO));
     }
 
@@ -68,7 +69,7 @@ public class ServicioController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         servicioService.eliminarServicio(id);
         return ResponseEntity.noContent().build();
     }

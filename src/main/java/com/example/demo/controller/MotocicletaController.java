@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.MotocicletaRequestDTO;
 import com.example.demo.dto.MotocicletaResponseDTO;
+import com.example.demo.model.NombreRol;
 import com.example.demo.service.MotocicletaService;
 import com.example.demo.security.JwtUtil;
 import jakarta.validation.Valid;
@@ -31,7 +32,7 @@ public class MotocicletaController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody MotocicletaRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         MotocicletaResponseDTO response = motocicletaService.crearMotocicleta(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -40,7 +41,7 @@ public class MotocicletaController {
     public ResponseEntity<List<MotocicletaResponseDTO>> obtenerTodas(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(motocicletaService.obtenerTodas());
     }
 
@@ -49,7 +50,7 @@ public class MotocicletaController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(motocicletaService.obtenerPorId(id));
     }
 
@@ -59,7 +60,7 @@ public class MotocicletaController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @Valid @RequestBody MotocicletaRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(motocicletaService.actualizarMotocicleta(id, requestDTO));
     }
 
@@ -68,7 +69,7 @@ public class MotocicletaController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         motocicletaService.eliminarMotocicleta(id);
         return ResponseEntity.noContent().build();
     }

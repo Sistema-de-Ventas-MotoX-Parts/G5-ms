@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.MetodoPagoDTO;
+import com.example.demo.model.NombreRol;
 import com.example.demo.service.MetodoPagoService;
 import com.example.demo.security.JwtUtil;
 import jakarta.validation.Valid;
@@ -37,7 +38,7 @@ public class MetodoPagoController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody MetodoPagoDTO metodoPagoDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         MetodoPagoDTO created = metodoPagoService.save(metodoPagoDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
@@ -48,7 +49,7 @@ public class MetodoPagoController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @Valid @RequestBody MetodoPagoDTO metodoPagoDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         MetodoPagoDTO updated = metodoPagoService.update(id, metodoPagoDTO);
         return ResponseEntity.ok(updated);
     }
@@ -58,7 +59,7 @@ public class MetodoPagoController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         metodoPagoService.delete(id);
         return ResponseEntity.noContent().build();
     }

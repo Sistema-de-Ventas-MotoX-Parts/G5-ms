@@ -18,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 import jakarta.validation.Valid;
 
 import com.example.demo.model.Categoria;
+import com.example.demo.model.NombreRol;
 import com.example.demo.service.CategoriaService;
 import com.example.demo.security.JwtUtil;
 
@@ -60,7 +61,7 @@ public class CategoriaController {
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
 			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@Valid @RequestBody Categoria categoria) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+		jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
 		try {
 			Categoria nueva = categoriaService.guardarCategoria(categoria);
 			return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
@@ -78,7 +79,7 @@ public class CategoriaController {
 			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id,
 			@Valid @RequestBody Categoria categoria) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+		jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
 		try {
 			return ResponseEntity.ok(categoriaService.editarCategoria(id, categoria));
 		} catch (ResponseStatusException e) {
@@ -94,7 +95,7 @@ public class CategoriaController {
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
 			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+		jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
 		try {
 			categoriaService.eliminarCategoria(id);
 			Map<String, String> response = new HashMap<>();

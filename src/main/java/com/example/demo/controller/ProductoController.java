@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 
+import com.example.demo.model.NombreRol;
 import com.example.demo.model.Producto;
 import com.example.demo.service.ProductoService;
 import com.example.demo.security.JwtUtil;
@@ -42,7 +43,7 @@ public class ProductoController {
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
 			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@Valid @RequestBody Producto producto) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+		jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
 		return productoService.guardarProducto(producto);
 	}
 
@@ -59,7 +60,7 @@ public class ProductoController {
 			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id,
 			@Valid @RequestBody Producto producto) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+		jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
 		return productoService.editarProducto(id, producto);
 	}
 
@@ -69,7 +70,7 @@ public class ProductoController {
 			@RequestHeader(value = "Authorization", required = false) String tokenHeader,
 			@CookieValue(value = "token_jwt", required = false) String cookieToken,
 			@PathVariable Long id) {
-		jwtUtil.validarAdmin(tokenHeader, cookieToken);
+		jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
 		productoService.eliminarProducto(id);
 	}
 }

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.service.CloudinaryService;
+import com.example.demo.model.NombreRol;
 import com.example.demo.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class ImagenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @RequestParam("file") MultipartFile file) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	    jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         try {
             String imageUrl = cloudinaryService.uploadImage(file);
             Map<String, String> response = new HashMap<>();

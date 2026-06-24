@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.MarcaRequestDTO;
 import com.example.demo.dto.MarcaResponseDTO;
+import com.example.demo.model.NombreRol;
 import com.example.demo.service.MarcaService;
 import com.example.demo.security.JwtUtil;
 import jakarta.validation.Valid;
@@ -31,8 +32,8 @@ public class MarcaController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody MarcaRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
-        MarcaResponseDTO response = marcaService.crearMarca(requestDTO);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+    	MarcaResponseDTO response = marcaService.crearMarca(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -40,7 +41,7 @@ public class MarcaController {
     public ResponseEntity<List<MarcaResponseDTO>> obtenerTodas(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(marcaService.obtenerTodas());
     }
 
@@ -49,7 +50,7 @@ public class MarcaController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(marcaService.obtenerPorId(id));
     }
 
@@ -59,7 +60,7 @@ public class MarcaController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @Valid @RequestBody MarcaRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         MarcaResponseDTO response = marcaService.actualizarMarca(id, requestDTO);
         return ResponseEntity.ok(response);
     }
@@ -69,7 +70,7 @@ public class MarcaController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         marcaService.eliminarMarca(id);
         return ResponseEntity.noContent().build();
     }
