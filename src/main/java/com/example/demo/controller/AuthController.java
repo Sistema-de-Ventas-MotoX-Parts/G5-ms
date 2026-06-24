@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.example.demo.model.NombreRol;
 import com.example.demo.model.Usuario;
 import com.example.demo.service.UsuarioService;
 import java.util.HashMap;
@@ -50,7 +51,8 @@ public class AuthController {
         try {
             Usuario usuario = usuarioService.login(loginRequest.getEmail(), loginRequest.getContrasenia());
 
-            String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getRol().getNombreRol().name());
+            //MODIFICACION: MANDAR NOMBRE DEL ROL
+            String token = jwtUtil.generateToken(usuario.getEmail(), usuario.getRol().getNombreRol());
 
             // Crear la cookie HttpOnly
             org.springframework.http.ResponseCookie cookie = org.springframework.http.ResponseCookie.from("token_jwt", token)
@@ -97,14 +99,17 @@ public class AuthController {
         return ResponseEntity.ok(responseBody);
     }
 
-    // CRUD para Usuarios (Solo ADMIN)
+    // --- CRUD para Usuarios (Solo ADMIN) ---
 
     @PostMapping("/usuarios")
     public ResponseEntity<?> crearUsuario(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody Usuario usuario) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+        
+        // MODIFICADO: Uso de validarRolRequerido
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        
         Usuario nuevoUsuario = usuarioService.crearUsuario(usuario);
         nuevoUsuario.setContrasenia(null);
         return ResponseEntity.ok(nuevoUsuario);
@@ -116,7 +121,9 @@ public class AuthController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @RequestBody Usuario usuario) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+            
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
+        
         Usuario usuarioActualizado = usuarioService.actualizarUsuario(id, usuario);
         usuarioActualizado.setContrasenia(null);
         return ResponseEntity.ok(usuarioActualizado);
@@ -127,7 +134,10 @@ public class AuthController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+            
+        // MODIFICADO: Uso de validarRolRequerido
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        
         usuarioService.eliminarUsuario(id);
         Map<String, String> response = new HashMap<>();
         response.put("mensaje", "Usuario eliminado exitosamente");
@@ -138,7 +148,10 @@ public class AuthController {
     public ResponseEntity<?> obtenerTodos(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+            
+        // MODIFICADO: Uso de validarRolRequerido
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        
         java.util.List<Usuario> usuarios = usuarioService.obtenerTodos();
         usuarios.forEach(u -> u.setContrasenia(null));
         return ResponseEntity.ok(usuarios);
@@ -148,7 +161,10 @@ public class AuthController {
     public ResponseEntity<?> obtenerMecanicos(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+            
+        // MODIFICADO: Uso de validarRolRequerido
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        
         java.util.List<Usuario> mecanicos = usuarioService.obtenerMecanicos();
         mecanicos.forEach(u -> u.setContrasenia(null));
         return ResponseEntity.ok(mecanicos);
@@ -159,7 +175,10 @@ public class AuthController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+            
+        // MODIFICADO: Uso de validarRolRequerido
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        
         Usuario usuario = usuarioService.obtenerPorId(id);
         usuario.setContrasenia(null);
         return ResponseEntity.ok(usuario);

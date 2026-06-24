@@ -6,6 +6,8 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.example.demo.model.NombreRol;
+
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -31,10 +33,10 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String email, String rol) {
+    public String generateToken(String email, NombreRol rol) {
         return Jwts.builder()
                 .subject(email)
-                .claim("rol", rol)
+                .claim("rol", rol.name())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
@@ -77,10 +79,11 @@ public class JwtUtil {
     }
 
     public void validarAdmin(String tokenHeader) {
-        validarAdmin(tokenHeader, null);
+    	validarRolRequerido(tokenHeader, null, NombreRol.ADMIN);
     }
 
-    public void validarAdmin(String tokenHeader, String cookieToken) {
+ // Reemplaza validarAdmin por un método genérico:
+    public void validarRolRequerido(String tokenHeader, String cookieToken, NombreRol rolEsperado) {
         String token = null;
         if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
             token = tokenHeader.substring(7);
@@ -89,15 +92,20 @@ public class JwtUtil {
         }
 
         if (token == null) {
-            throw new SecurityException("Acceso denegado. Token de autorización no proporcionado o inválido.");
+            throw new SecurityException("Acceso denegado. Token de autorización no proporcionado.");
         }
+        
         String email = getEmailFromToken(token);
         if (!validateToken(token, email)) {
             throw new SecurityException("Acceso denegado. Token inválido o expirado.");
         }
-        String rol = getRolFromToken(token);
-        if (!"ADMIN".equals(rol)) {
-            throw new SecurityException("Acceso denegado. Se requiere rol de administrador.");
+        
+        String rolEnToken = getRolFromToken(token);
+        
+        // Comparamos dinámicamente contra el Enum que pasaste por parámetro
+        if (!rolEsperado.name().equals(rolEnToken)) {
+            throw new SecurityException("Acceso denegado. Se requiere el rol: " + rolEsperado.name());
         }
     }
+    
 }
