@@ -904,6 +904,381 @@
 			"description": "Endpoints de gestión de métodos de pago."
 		},
 		{
+			"name": "Marcas",
+			"item": [
+				{
+					"name": "Listar Marcas (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/marcas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"marcas"
+							]
+						},
+						"description": "Lista todas las marcas registradas (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Marca por ID (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/marcas/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"marcas",
+								"1"
+							]
+						},
+						"description": "Obtiene una marca específica por su ID (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Marca (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Honda\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/marcas",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"marcas"
+							]
+						},
+						"description": "Crea una nueva marca de motocicletas (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Editar Marca (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Honda Motos\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/marcas/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"marcas",
+								"1"
+							]
+						},
+						"description": "Edita una marca existente por su ID (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Marca (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/marcas/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"marcas",
+								"1"
+							]
+						},
+						"description": "Elimina una marca (eliminación en cadena de todos sus modelos y motos). Requiere rol ADMIN."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de gestión de marcas de motocicletas."
+		},
+		{
+			"name": "Modelos",
+			"item": [
+				{
+					"name": "Listar Modelos (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/modelos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"modelos"
+							]
+						},
+						"description": "Lista todos los modelos registrados (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Modelo por ID (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/modelos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"modelos",
+								"1"
+							]
+						},
+						"description": "Obtiene un modelo específico por su ID (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Modelos por Marca (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/modelos/marca/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"modelos",
+								"marca",
+								"1"
+							]
+						},
+						"description": "Obtiene la lista de modelos asociados a una marca específica (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Modelo (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"CB 250 Twister\",\n    \"anio\": 2022,\n    \"idMarca\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/modelos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"modelos"
+							]
+						},
+						"description": "Crea un nuevo modelo de motocicleta asociado a una marca (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Editar Modelo (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"CB 300F Twister\",\n    \"anio\": 2024,\n    \"idMarca\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/modelos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"modelos",
+								"1"
+							]
+						},
+						"description": "Edita un modelo existente por su ID (requiere rol ADMIN)."
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Modelo (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/modelos/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"modelos",
+								"1"
+							]
+						},
+						"description": "Elimina un modelo de motocicleta (la marca sigue existiendo). Requiere rol ADMIN."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de gestión de modelos de motocicletas."
+		},
+		{
 			"name": "Motocicletas",
 			"item": [
 				{
