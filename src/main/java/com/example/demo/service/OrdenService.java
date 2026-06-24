@@ -49,9 +49,6 @@ public class OrdenService {
     @Autowired
     private OrdenServicioRepository ordenServicioRepository;
 
-    @Autowired
-    private WhatsAppService whatsAppService;
-
     @Transactional
     public OrdenResponseDTO crearOrden(OrdenRequestDTO requestDTO) {
         // 1. Validar motocicleta
@@ -167,7 +164,6 @@ public class OrdenService {
         // Si se finaliza el servicio de inmediato, generar la factura
         if (ordenGuardada.getEstado() == EstadoOrden.SERVICE_TERMINADO) {
             generarFactura(ordenGuardada);
-            whatsAppService.enviarPinWhatsApp(ordenGuardada.getTelefonoContacto(), ordenGuardada.getPin());
         }
 
         // Volver a cargar para traer facturas mapeadas correctamente
@@ -201,8 +197,6 @@ public class OrdenService {
 
         orden.setTelefonoContacto(requestDTO.getTelefonoContacto());
 
-        boolean pinGenerado = false;
-
         // Si pasa a ENTREGADO, requiere validación del PIN
         if (requestDTO.getEstado() == EstadoOrden.ENTREGADO && orden.getEstado() != EstadoOrden.ENTREGADO) {
             if (orden.getPin() == null || orden.getPin().isEmpty()) {
@@ -225,7 +219,6 @@ public class OrdenService {
                 orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
                 orden.setPin(generarPinAleatorio());
                 orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
-                pinGenerado = true;
             }
         }
 
@@ -405,10 +398,6 @@ public class OrdenService {
             generarFactura(saved);
         }
 
-        if (pinGenerado) {
-            whatsAppService.enviarPinWhatsApp(saved.getTelefonoContacto(), saved.getPin());
-        }
-
         return convertToResponseDTO(saved);
     }
 
@@ -423,8 +412,6 @@ public class OrdenService {
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado de orden no válido: " + nuevoEstadoStr);
         }
-
-        boolean pinGenerado = false;
 
         // Si pasa a ENTREGADO, requiere validación del PIN
         if (nuevoEstado == EstadoOrden.ENTREGADO) {
@@ -448,16 +435,11 @@ public class OrdenService {
                 orden.getFechaExpiracionPin() == null || LocalDateTime.now().isAfter(orden.getFechaExpiracionPin())) {
                 orden.setPin(generarPinAleatorio());
                 orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
-                pinGenerado = true;
             }
         }
 
         orden.setEstado(nuevoEstado);
         Orden saved = ordenRepository.save(orden);
-
-        if (pinGenerado) {
-            whatsAppService.enviarPinWhatsApp(saved.getTelefonoContacto(), saved.getPin());
-        }
 
         if (nuevoEstado == EstadoOrden.SERVICE_TERMINADO) {
             generarFactura(saved);
@@ -676,8 +658,6 @@ public class OrdenService {
         orden.setPin(generarPinAleatorio());
         orden.setFechaExpiracionPin(LocalDateTime.now().plusMinutes(15));
         Orden saved = ordenRepository.save(orden);
-
-        whatsAppService.enviarPinWhatsApp(saved.getTelefonoContacto(), saved.getPin());
 
         return convertToResponseDTO(saved);
     }
