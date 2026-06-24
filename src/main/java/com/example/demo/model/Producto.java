@@ -51,7 +51,6 @@ public class Producto {
 	@JoinColumn(name = "id_categoria", nullable = false)
 	private Categoria categoria;
 	
-	@NotNull(message = "El estado del producto es obligatorio")
 	@Column(nullable = false)
 	private Boolean activo;
 

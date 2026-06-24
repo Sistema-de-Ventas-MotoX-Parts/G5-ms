@@ -7,6 +7,7 @@ import com.example.demo.model.Categoria;
 
 
 @Repository
-public interface CategoriaRepository extends JpaRepository<Categoria,Long>{
+public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
+    java.util.Optional<Categoria> findByNombreIgnoreCase(String nombre);
 }

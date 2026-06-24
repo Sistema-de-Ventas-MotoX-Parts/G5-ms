@@ -7,7 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 
@@ -19,16 +19,19 @@ public class Categoria {
 	@GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Long id;
 	
-	 // Limitamos a 50 caracteres en la base de datos y en la validación
+	// Mínimo 2 y máximo 50 caracteres. Solo letras (con tildes), números, espacios, guiones y barras.
 	@NotBlank(message = "El nombre de la categoría es obligatorio")
-	@Size(max = 50, message = "El nombre no puede exceder los 50 caracteres")
+	@Size(min = 2, max = 50,
+		  message = "El nombre debe tener entre 2 y 50 caracteres")
+	@Pattern(regexp = "^[\\p{L}0-9][\\p{L}0-9 \\-/]*$",
+			 message = "El nombre solo puede contener letras, números, espacios, guiones (-) y barras (/)")
 	@Column(length = 50, nullable = false)
 	private String nombre;
 	
-	//Campo para desactivar categoria
-	@NotNull(message = "El estado del producto es obligatorio")
+	//Campo para desactivar categoria (lo asigna el service, no se valida en el request)
 	@Column(nullable = false)
 	private Boolean activo;
+
 
 	public Long getId() {
 		return id;
