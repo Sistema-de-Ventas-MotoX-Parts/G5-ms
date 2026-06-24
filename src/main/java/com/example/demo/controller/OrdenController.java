@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.OrdenRequestDTO;
 import com.example.demo.dto.OrdenResponseDTO;
+import com.example.demo.model.NombreRol;
 import com.example.demo.service.OrdenService;
 import com.example.demo.security.JwtUtil;
 import jakarta.validation.Valid;
@@ -28,7 +29,7 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody OrdenRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         OrdenResponseDTO response = ordenService.crearOrden(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -38,7 +39,7 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @RequestParam(required = false) Long idMecanico) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(ordenService.obtenerTodas(idMecanico));
     }
 
@@ -47,7 +48,7 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(ordenService.obtenerPorId(id));
     }
 
@@ -57,7 +58,7 @@ public class OrdenController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @Valid @RequestBody OrdenRequestDTO requestDTO) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         return ResponseEntity.ok(ordenService.actualizarOrden(id, requestDTO));
     }
 
@@ -67,7 +68,7 @@ public class OrdenController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @RequestParam String estado) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC); 
         return ResponseEntity.ok(ordenService.actualizarEstado(id, estado));
     }
 
@@ -76,8 +77,38 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-        jwtUtil.validarAdmin(tokenHeader, cookieToken);
+    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
         ordenService.eliminarOrden(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @GetMapping("/mis-ordenes")
+    public ResponseEntity<List<OrdenResponseDTO>> obtenerMisOrdenes(
+            @RequestHeader(value = "Authorization", required = false) String tokenHeader,
+            @CookieValue(value = "token_jwt", required = false) String cookieToken) {
+            
+        // 1. Validamos rol: MECÁNICO
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC); 
+        
+        // 2. Extraemos el string del token
+        String token = extraerTokenLimpio(tokenHeader, cookieToken);
+        
+        // 3. Sacamos el email del mecánico
+        String emailMecanico = jwtUtil.getEmailFromToken(token);
+        
+        // 4. Llamamos al servicio
+        List<OrdenResponseDTO> misOrdenes = ordenService.obtenerOrdenesPorEmailMecanico(emailMecanico);
+        
+        return ResponseEntity.ok(misOrdenes);
+    }
+
+    // --- Método auxiliar privado para el token ---
+    private String extraerTokenLimpio(String tokenHeader, String cookieToken) {
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            return tokenHeader.substring(7);
+        } else if (cookieToken != null && !cookieToken.isEmpty()) {
+            return cookieToken;
+        }
+        throw new SecurityException("Token no encontrado");
     }
 }

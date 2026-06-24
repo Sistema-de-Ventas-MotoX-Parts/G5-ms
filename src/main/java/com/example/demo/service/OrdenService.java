@@ -1,26 +1,47 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.FacturaDTO;
-import com.example.demo.dto.DetalleFacturaDTO;
-import com.example.demo.dto.DetalleFacturaServicioDTO;
-import com.example.demo.dto.OrdenRequestDTO;
-import com.example.demo.dto.OrdenResponseDTO;
-import com.example.demo.dto.OrdenServicioRequestDTO;
-import com.example.demo.dto.OrdenServicioResponseDTO;
-import com.example.demo.dto.OrdenProductoRequestDTO;
-import com.example.demo.dto.OrdenProductoResponseDTO;
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.example.demo.dto.DetalleFacturaDTO;
+import com.example.demo.dto.DetalleFacturaServicioDTO;
+import com.example.demo.dto.FacturaDTO;
+import com.example.demo.dto.OrdenProductoRequestDTO;
+import com.example.demo.dto.OrdenProductoResponseDTO;
+import com.example.demo.dto.OrdenRequestDTO;
+import com.example.demo.dto.OrdenResponseDTO;
+import com.example.demo.dto.OrdenServicioRequestDTO;
+import com.example.demo.dto.OrdenServicioResponseDTO;
+import com.example.demo.model.DetalleFactura;
+import com.example.demo.model.DetalleFacturaServicio;
+import com.example.demo.model.EstadoFactura;
+import com.example.demo.model.EstadoOrden;
+import com.example.demo.model.Factura;
+import com.example.demo.model.MetodoPago;
+import com.example.demo.model.Motocicleta;
+import com.example.demo.model.NombreRol;
+import com.example.demo.model.Orden;
+import com.example.demo.model.OrdenProducto;
+import com.example.demo.model.OrdenServicio;
+import com.example.demo.model.Producto;
+import com.example.demo.model.Servicio;
+import com.example.demo.model.Usuario;
+import com.example.demo.repository.FacturaRepository;
+import com.example.demo.repository.MetodoPagoRepository;
+import com.example.demo.repository.MotocicletaRepository;
+import com.example.demo.repository.OrdenRepository;
+import com.example.demo.repository.OrdenServicioRepository;
+import com.example.demo.repository.ProductoRepository;
+import com.example.demo.repository.ServicioRepository;
+import com.example.demo.repository.UsuarioRepository;
 
 @Service
 public class OrdenService {
@@ -160,19 +181,44 @@ public class OrdenService {
         return obtenerPorId(ordenGuardada.getId());
     }
 
+ // OBTENER TODAS (Optimizada para no saturar la memoria)
     public List<OrdenResponseDTO> obtenerTodas(Long idMecanico) {
-        return ordenRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
-                .filter(o -> idMecanico == null || (o.getMecanico() != null && o.getMecanico().getId().equals(idMecanico)))
+        List<Orden> ordenes;
+
+        if (idMecanico == null) {
+            // Si no hay ID, traemos todas ordenadas de la más nueva a la más vieja
+            ordenes = ordenRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
+        } else {
+           
+            ordenes = ordenRepository.findByMecanicoId(idMecanico);
+        }
+
+        return ordenes.stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    // OBTENER POR ID 
     public OrdenResponseDTO obtenerPorId(Long id) {
         Orden orden = ordenRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Orden no encontrada con id: " + id));
         return convertToResponseDTO(orden);
     }
-
+    
+    // OBTENER ORDEN POR EMAIL DEL MECÁNICO 
+    public List<OrdenResponseDTO> obtenerOrdenesPorEmailMecanico(String email) {
+        //busca al mecánico por su correo
+        Usuario mecanico = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Mecánico no encontrado"));
+                
+        // Buscamos las órdenes usando su ID y aplicamos método de conversión a DTO
+        return ordenRepository.findByMecanicoId(mecanico.getId())
+                .stream()
+                .map(this::convertToResponseDTO) 
+                .collect(Collectors.toList());
+    }
+    
+    
     @Transactional
     public OrdenResponseDTO actualizarOrden(Long id, OrdenRequestDTO requestDTO) {
         Orden orden = ordenRepository.findById(id)
