@@ -108,4 +108,37 @@ public class JwtUtil {
         }
     }
     
+    public void validarRolesRequeridos(String tokenHeader, String cookieToken, NombreRol... rolesEsperados) {
+        String token = null;
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            token = tokenHeader.substring(7);
+        } else if (cookieToken != null && !cookieToken.isEmpty()) {
+            token = cookieToken;
+        }
+
+        if (token == null) {
+            throw new SecurityException("Acceso denegado. Token de autorización no proporcionado.");
+        }
+        
+        String email = getEmailFromToken(token);
+        if (!validateToken(token, email)) {
+            throw new SecurityException("Acceso denegado. Token inválido o expirado.");
+        }
+        
+        String rolEnToken = getRolFromToken(token);
+        
+        boolean rolValido = false;
+        for (NombreRol rolEsperado : rolesEsperados) {
+            if (rolEsperado.name().equals(rolEnToken)) {
+                rolValido = true;
+                break;
+            }
+        }
+        
+        if (!rolValido) {
+            java.util.List<String> nombresRoles = new java.util.ArrayList<>();
+            for(NombreRol r : rolesEsperados) nombresRoles.add(r.name());
+            throw new SecurityException("Acceso denegado. Se requiere uno de los siguientes roles: " + String.join(", ", nombresRoles));
+        }
+    }
 }

@@ -41,7 +41,7 @@ public class ServicioController {
     public ResponseEntity<List<ServicioResponseDTO>> obtenerTodos(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
+    	jwtUtil.validarRolesRequeridos(tokenHeader, cookieToken, NombreRol.ADMIN, NombreRol.MECHANIC);
         return ResponseEntity.ok(servicioService.obtenerTodos());
     }
 
@@ -50,7 +50,7 @@ public class ServicioController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
+    	jwtUtil.validarRolesRequeridos(tokenHeader, cookieToken, NombreRol.ADMIN, NombreRol.MECHANIC);
         return ResponseEntity.ok(servicioService.obtenerPorId(id));
     }
 
