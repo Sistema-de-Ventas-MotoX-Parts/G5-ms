@@ -2,6 +2,7 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "motocicletas")
@@ -11,11 +12,9 @@ public class Motocicleta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String marca;
-
-    @Column(nullable = false)
-    private String modelo;
+    @ManyToOne
+    @JoinColumn(name = "id_modelo", nullable = false)
+    private Modelo modelo;
 
     @Column(nullable = false, unique = true)
     private String patente;
@@ -28,6 +27,12 @@ public class Motocicleta {
 	@Column(nullable = false)
 	private Boolean activo;
 
+    @Column(nullable = true, unique = true)
+    private String dni;
+
+    @Column(name = "fecha_creacion", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime fechaCreacion;
+
     public Long getId() {
         return id;
     }
@@ -37,18 +42,18 @@ public class Motocicleta {
     }
 
     public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
+        return modelo != null && modelo.getMarca() != null ? modelo.getMarca().getNombre() : null;
     }
 
     public String getModelo() {
+        return modelo != null ? modelo.getNombre() : null;
+    }
+
+    public Modelo getModeloEntity() {
         return modelo;
     }
 
-    public void setModelo(String modelo) {
+    public void setModeloEntity(Modelo modelo) {
         this.modelo = modelo;
     }
 
@@ -74,5 +79,21 @@ public class Motocicleta {
 
     public void setActivo(Boolean activo) {
         this.activo = activo;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+
+    public LocalDateTime getFechaCreacion() {
+        return fechaCreacion;
+    }
+
+    public void setFechaCreacion(LocalDateTime fechaCreacion) {
+        this.fechaCreacion = fechaCreacion;
     }
 }
