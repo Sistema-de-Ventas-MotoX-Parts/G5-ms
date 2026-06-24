@@ -21,6 +21,7 @@ public class OrdenResponseDTO {
     private String nombreMecanico;
     private String pin;
     private LocalDateTime fechaExpiracionPin;
+    private String whatsappUrl;
 
     public Long getId() {
         return id;
@@ -142,5 +143,13 @@ public class OrdenResponseDTO {
 
     public void setFechaExpiracionPin(LocalDateTime fechaExpiracionPin) {
         this.fechaExpiracionPin = fechaExpiracionPin;
+    }
+
+    public String getWhatsappUrl() {
+        return whatsappUrl;
+    }
+
+    public void setWhatsappUrl(String whatsappUrl) {
+        this.whatsappUrl = whatsappUrl;
     }
 }

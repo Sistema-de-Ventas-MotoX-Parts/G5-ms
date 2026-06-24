@@ -496,6 +496,17 @@ public class OrdenService {
         dto.setPin(orden.getPin());
         dto.setFechaExpiracionPin(orden.getFechaExpiracionPin());
 
+        if (orden.getPin() != null && orden.getTelefonoContacto() != null) {
+            String cleanedPhone = orden.getTelefonoContacto().replaceAll("[^0-9]", "");
+            String mensaje = "¡Hola! Tu motocicleta está lista para retirar en el taller. Tu PIN de seguridad es: " + orden.getPin() + ". Recuerda que este PIN expira en 15 minutos.";
+            try {
+                String encodedMsg = java.net.URLEncoder.encode(mensaje, "UTF-8").replace("+", "%20");
+                dto.setWhatsappUrl("https://wa.me/" + cleanedPhone + "?text=" + encodedMsg);
+            } catch (java.io.UnsupportedEncodingException e) {
+                dto.setWhatsappUrl("https://wa.me/" + cleanedPhone);
+            }
+        }
+
         if (orden.getMecanico() != null) {
             dto.setIdMecanico(orden.getMecanico().getId());
             dto.setNombreMecanico(orden.getMecanico().getNombre());
