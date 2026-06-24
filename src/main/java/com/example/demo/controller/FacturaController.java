@@ -66,27 +66,34 @@ public class FacturaController {
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    // OBTENER FACTURAS DEL USUARIO LOGUEADO
     @GetMapping("/mis-facturas")
     public ResponseEntity<List<FacturaDTO>> getMisFacturas(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
         
-        String token = null;
-        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
-            token = tokenHeader.substring(7);
-        } else if (cookieToken != null && !cookieToken.isEmpty()) {
-            token = cookieToken;
-        }
+        // 1. Extraemos el string del token
+        String token = extraerTokenLimpio(tokenHeader, cookieToken);
 
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
+        // 2. Sacamos el email del usuario
         String email = jwtUtil.getEmailFromToken(token);
+
+        // 3. Buscamos al usuario por su email
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
+        // 4. Llamamos al servicio para obtener sus facturas
         return ResponseEntity.ok(facturaService.findByUsuarioId(usuario.getId()));
+    }
+
+    // --- Método auxiliar privado para el token ---
+    private String extraerTokenLimpio(String tokenHeader, String cookieToken) {
+        if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
+            return tokenHeader.substring(7);
+        } else if (cookieToken != null && !cookieToken.isEmpty()) {
+            return cookieToken;
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token no encontrado");
     }
 
     @PatchMapping("/{id}/estado")

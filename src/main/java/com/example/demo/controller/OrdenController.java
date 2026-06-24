@@ -70,7 +70,9 @@ public class OrdenController {
             @PathVariable Long id,
             @RequestParam String estado,
             @RequestParam(required = false) String pin) {
+        // 1. Validamos rol: MECÁNICO
         jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC);
+        // 2. Modificamos el estado de la orden
         return ResponseEntity.ok(ordenService.actualizarEstado(id, estado, pin));
     }
 
@@ -78,10 +80,10 @@ public class OrdenController {
     public ResponseEntity<Void> eliminarOrden(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
-            @PathVariable Long id,
-            @RequestParam String estado,
-            @RequestParam(required = false) String pin) {
+            @PathVariable Long id) {
+        // 1. Validamos rol: ADMIN
         jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
+        // 2. Eliminamos la orden
         ordenService.eliminarOrden(id);
         return ResponseEntity.noContent().build();
     }
