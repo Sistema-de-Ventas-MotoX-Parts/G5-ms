@@ -40,6 +40,12 @@ public class Orden {
     @Column(name = "telefono_contacto")
     private String telefonoContacto;
 
+    @Column(name = "pin")
+    private String pin;
+
+    @Column(name = "fecha_expiracion_pin")
+    private LocalDateTime fechaExpiracionPin;
+
     @NotNull(message = "El estado es obligatorio")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -164,5 +170,21 @@ public class Orden {
 
     public void setMetodoPago(MetodoPago metodoPago) {
         this.metodoPago = metodoPago;
+    }
+
+    public String getPin() {
+        return pin;
+    }
+
+    public void setPin(String pin) {
+        this.pin = pin;
+    }
+
+    public LocalDateTime getFechaExpiracionPin() {
+        return fechaExpiracionPin;
+    }
+
+    public void setFechaExpiracionPin(LocalDateTime fechaExpiracionPin) {
+        this.fechaExpiracionPin = fechaExpiracionPin;
     }
 }

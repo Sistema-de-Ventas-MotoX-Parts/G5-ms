@@ -29,7 +29,7 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @Valid @RequestBody OrdenRequestDTO requestDTO) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         OrdenResponseDTO response = ordenService.crearOrden(requestDTO);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -39,7 +39,7 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @RequestParam(required = false) Long idMecanico) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         return ResponseEntity.ok(ordenService.obtenerTodas(idMecanico));
     }
 
@@ -48,7 +48,7 @@ public class OrdenController {
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         return ResponseEntity.ok(ordenService.obtenerPorId(id));
     }
 
@@ -58,47 +58,52 @@ public class OrdenController {
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
             @Valid @RequestBody OrdenRequestDTO requestDTO) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC);
         return ResponseEntity.ok(ordenService.actualizarOrden(id, requestDTO));
     }
 
+    // MODIFICAR EL ESTADO --MECANICO--
     @PatchMapping("/{id}/estado")
     public ResponseEntity<OrdenResponseDTO> actualizarEstado(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
             @PathVariable Long id,
-            @RequestParam String estado) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC); 
-        return ResponseEntity.ok(ordenService.actualizarEstado(id, estado));
+            @RequestParam String estado,
+            @RequestParam(required = false) String pin) {
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC);
+        return ResponseEntity.ok(ordenService.actualizarEstado(id, estado, pin));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarOrden(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken,
-            @PathVariable Long id) {
-    	jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN); 
+            @PathVariable Long id,
+            @RequestParam String estado,
+            @RequestParam(required = false) String pin) {
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.ADMIN);
         ordenService.eliminarOrden(id);
         return ResponseEntity.noContent().build();
     }
-    
+
+    // OBTENER ORDENES DE MECANICO LOGUEADO
     @GetMapping("/mis-ordenes")
     public ResponseEntity<List<OrdenResponseDTO>> obtenerMisOrdenes(
             @RequestHeader(value = "Authorization", required = false) String tokenHeader,
             @CookieValue(value = "token_jwt", required = false) String cookieToken) {
-            
+
         // 1. Validamos rol: MECÁNICO
-        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC); 
-        
+        jwtUtil.validarRolRequerido(tokenHeader, cookieToken, NombreRol.MECHANIC);
+
         // 2. Extraemos el string del token
         String token = extraerTokenLimpio(tokenHeader, cookieToken);
-        
+
         // 3. Sacamos el email del mecánico
         String emailMecanico = jwtUtil.getEmailFromToken(token);
-        
+
         // 4. Llamamos al servicio
         List<OrdenResponseDTO> misOrdenes = ordenService.obtenerOrdenesPorEmailMecanico(emailMecanico);
-        
+
         return ResponseEntity.ok(misOrdenes);
     }
 
